@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>万物皆可人类学 - 深度人格分析</title>
+    <!-- 外部库：Tailwind CSS, React, Babel, Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;900&display=swap');
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #fdfcf9;
+        }
+        .font-sans { font-family: 'Noto Sans SC', sans-serif; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        
+        @keyframes fade-in { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .animate-in { animation: fade-in 1.2s ease-out forwards; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef } = React;
+
+        // --- 核心数据 ---
+        const PERSONAS = {
+            "地脉观察者": {
+                identity: "自然的守望者",
+                desc: "你是一个对‘大地’有着天然直觉的观察者。在你的视野里，万物并非凭空出现的商品，而是劳动力、泥土与时间的结晶。当你面对一颗蔬菜或一碗热汤，你不仅是在消费，更是在进行一场无意识的溯源。你倾向于排斥现代社会那种‘去背景化’的冷漠，试图在每一个物件上寻找温热的手感与土地的记忆。",
+                analysis: "你的思维模式偏向‘功能主义’与‘唯物论’。你眼中的文化是一套为了生存而演化出的精密系统，而每一个微小的日常习惯都是维持这个系统运转的‘地脉线条’。",
+                selfReport: "你坚信世界作为上帝的一场博弈，试图通过感性直觉反编译因果密码。你更在意结构的和谐与符号的永恒，而非血肉的温度。",
+                shadow: "过度的逻辑分析可能导致自我的虚假化，害怕自己终究只是他人梦中的字符。害怕由于纯粹偶然性的降临而导致的结构性崩坏。",
+                acceptance: "允许现实出现裂缝。那些逻辑无法解释的地方，才是生命最真实、最粗野的跳动。认领你的血肉之躯，接纳那些不被符号定义的混乱。",
+                mentor: "马林诺夫斯基",
+                quote: "你要走出扶手椅，去田野里生活，去感受那温热的人烟，这是唯一理解文化的方式。",
+                keywords: ["参与观察", "物质溯源", "功能主义"],
+                books: ["《西太平洋的航海者》", "《原始人的性生活》", "《文化论》"],
+                traits: [92, 35, 45, 25, 80],
+                spectrum: [85, 30, 20]
+            },
+            "符号解读专家": {
+                identity: "意义的解码师",
+                desc: "对你而言，世界是一本永远读不完的巨型文本。你拥有极强的隐喻感知力，总能从日常的缝隙中嗅出‘意义’的味道。你擅长将平凡的琐事转化为宏大的象征。你认为人类是悬挂在自己编织的意义之网上的生物。这种敏锐让你在复杂的社交网络中如鱼得水。",
+                analysis: "你的人类学本能是‘深描’。你不仅看人们做了什么，更关心他们‘赋予了这一动作什么含义’。你的逻辑是解释性的，而非因果性的。",
+                selfReport: "你正试图在信息的洪流中打捞文明的碎片。你认为每个日常动作都是一段加密的协议。你的观察不是为了评判，而是为了理解。",
+                shadow: "害怕意义的缺失。当一切都被解构为符号，你可能会陷入‘虚无’的焦虑，觉得人生只是一场没有观众的哑剧。",
+                acceptance: "接受事物的无意义。有时候，一颗番茄就仅仅是一颗番茄，它不需要承载任何文化的重担。允许自己在意义的网中偶尔下线。",
+                mentor: "克利福德·格尔茨",
+                quote: "文化不是一种客观的力量，它是人类自己编织并悬挂在上面的意义之网。",
+                keywords: ["解释人类学", "深描叙事", "地方性知识"],
+                books: ["《文化的解释》", "《地方性知识》", "《作为文化的艺术》"],
+                traits: [40, 75, 50, 60, 95],
+                spectrum: [50, 45, 85]
+            },
+            "赛博人类学家": {
+                identity: "数字时代的向导",
+                desc: "你站在人类进化的最前沿，是数字原住民中的侦察兵。你敏锐地察觉到，人类与机器的界限正在这种指尖与屏幕的互动中消融。你关注电信号如何重塑我们的情感，算法如何接管我们的决策。在你眼里，手机不是外物，而是进化出来的‘外挂器官’。",
+                analysis: "你的思想底色是‘后人类主义’。你打破了自然与文化的二元对立，将整个人机系统看作一个混合的图腾。你的观察极具前瞻性和实验性。",
+                selfReport: "你记录着‘碳基生物’向‘硅基文明’平滑过渡的每一个瞬间。你认为网络空间不是虚拟的，而是我们最新的、最真实的田野。",
+                shadow: "对‘失联’的深度恐惧。害怕一旦电力切断，你的身份和认同感会瞬间归零，沦为历史的盲目灰尘。",
+                acceptance: "在离线中寻找真实。去触摸粗糙的泥土，去感受没有算法优化过的、尴尬而生动的面对面互动。找回你的‘模拟信号’。",
+                mentor: "唐娜·哈拉维",
+                quote: "我宁愿做一个赛博格，也不愿做一个所谓的女神，因为界限本身就是用来被打破的。",
+                keywords: ["人机共生", "算法民族志", "后人类"],
+                books: ["《类人猿、赛博格和女人》", "《伴侣物种宣言》", "《Stay with the Trouble》"],
+                traits: [20, 85, 60, 98, 55],
+                spectrum: [20, 90, 60]
+            },
+            "结构主义大师": {
+                identity: "逻辑的分类员",
+                desc: "你拥有极佳的抽象概括能力，世界在你眼里是一个由各种公式和逻辑构成的巨型天平。你痴迷于寻找万物背后的‘通用语法’：生与熟、净与秽、男与女、家与外……你认为人类思维中存在着某种放之四海而皆准的底层架构。",
+                analysis: "你是典型的‘结构主义者’。你相信个体的行为只是表象，真正的秘密隐藏在那些支撑社会运转的‘深层结构’之中。你是一个冷峻的分类学家。",
+                selfReport: "把故事写成智力游戏。去写根本不存在的书评，去伪造失落的文明。文字不应提供安慰，而应通过逻辑编织出深邃的迷宫。",
+                shadow: "害怕无法分类的‘混乱’。当某种现象超出了你的二元对立框架，你会感到强烈的焦虑和否定。",
+                acceptance: "允许灰色的存在。世界不是只有黑与白，那些无法被归类的边缘，往往是灵感和生命力最旺盛的地方。",
+                mentor: "列维-斯特劳斯",
+                quote: "我关心的是那个‘放之四海而皆准’的脑内编译器，它决定了我们如何分类这个世界。",
+                keywords: ["二元对立", "普遍语法", "结构映射"],
+                books: ["《忧郁的热带》", "《原始思维》", "《结构人类学》"],
+                traits: [60, 40, 99, 50, 45],
+                spectrum: [70, 95, 80]
+            },
+            "生活考古学家": {
+                identity: "物品的立传者",
+                desc: "你对物件的‘社会生命’充满了浪漫的怀旧与严谨的探索。你眼中没有真正的‘垃圾’，每一件旧物、每一个废弃的角落，在你看来都刻满了时间的印迹和关系的缠绕。你擅长给物品写传记，认为人与物的连接才是社会最坚硬的部分。",
+                analysis: "你关注的是‘物质文化研究’。你赋予了死物以动能，认为物品的流转轨迹反映了社会的权力更迭和情感浓度。你是一个修复意义的考古学者。",
+                selfReport: "通过触摸旧物的纹理，回溯已经消失的生活现场。你拒绝消费主义的‘即插即用’，试图在过载的物质世界中打捞真实的情感深度。",
+                shadow: "容易沉溺于‘囤积’。因为害怕意义的丧失，你可能无法舍弃任何一件承载记忆的旧物，导致生活空间的过载。",
+                acceptance: "接受‘尘归尘、土归土’。万物都有其终结，消失本身也是物性传记中的华彩篇章。学习练习有尊严的告别。",
+                mentor: "伊戈尔·科皮托夫",
+                quote: "物品也有它的社会生命和传记，它在不同的生命周期中拥有不同的价值和人格。",
+                keywords: ["物品生命史", "物质文化", "商品化过程"],
+                books: ["《物的社会生活》", "《阿周那的战斗》", "《物质文化读本》"],
+                traits: [98, 45, 65, 30, 40],
+                spectrum: [95, 60, 40]
+            },
+            "灵魂测绘师": {
+                identity: "阈限的穿梭者",
+                desc: "你对‘阈限’（Liminality）——那种既不在此、也不在彼的中间地带有着近乎痴迷的敏感。在你眼里，人生就是一场接一场的仪式。你擅长捕捉那些界限溶解的瞬间，那些规则暂时失效的‘神圣时间’。",
+                analysis: "你的研究轴心是‘仪式与象征’。你不仅观察行为，更观察行为带来的‘状态转化’。你关注社会秩序在危机与庆典中的崩溃与重组。",
+                selfReport: "你是一个情感的炼金术士，总能发现仪式如何治愈焦虑，又如何重新定义身份。你的观察充满了灵性色彩，仿佛在为人类那不可捉摸的灵魂绘制地图。",
+                shadow: "容易陷入‘漂浮感’。因为总是迷恋中间状态，你可能很难在某个稳定的社会角色或关系中真正地‘落地’安家。",
+                acceptance: "在日常中寻找神圣。不只有宏大的仪式才是阈限，洗碗、走路也可以是转化的契机。学习在平凡的连续性中找到力量。",
+                mentor: "维克多·特纳",
+                quote: "在阈限的状态里，所有的界限都在溶解，所有的意义都在等待重新灌注。",
+                keywords: ["阈限空间", "仪式过程", "象征森林"],
+                books: ["《仪式过程》", "《象征之林》", "《表演人类学》"],
+                traits: [35, 60, 40, 75, 98],
+                spectrum: [40, 20, 85]
+            },
+            "社会诊断师": {
+                identity: "权力的透视眼",
+                desc: "你是一个洞察力惊人的‘社会医生’。当你进入一个场景，你的眼光会迅速扫描人际关系中的权力和等级。你关注什么是‘体面’，什么是‘趣味’。在你看来，没有一种消费是单纯的，它们都被‘象征资本’的逻辑所驱动。",
+                analysis: "你的核心逻辑源于‘场域理论’与‘资本批判’。你研究那些被内化到肉体里的阶层品味。你倾向于揭露伪善，追求一种去魅后的绝对理智。",
+                selfReport: "擅长拆解社交互动背后的博弈，指出那些看似理所当然的‘常识’其实是社会的某种规训。这种深刻的批判性让你总能先人一步看清真相。",
+                shadow: "过度的讽刺和警惕。因为看透了规则，你可能很难再毫无保留地投入到单纯的快乐或情感中，显得有些玩世不恭。",
+                acceptance: "允许纯粹的连接。阶层和权力确实存在，但真挚的感情有时能横跨这些鸿沟。允许自己在规则之外感性一回。",
+                mentor: "皮埃尔·布尔迪厄",
+                quote: "趣味不是天赋，它是阶层为了区分彼此而制造出来的最深刻的武器。",
+                keywords: ["象征资本", "趣味分层", "场域理论"],
+                books: ["《区分》", "《实践感》", "《继承人》"],
+                traits: [70, 80, 90, 65, 45],
+                spectrum: [60, 85, 95]
+            },
+            "批判理论家": {
+                identity: "常识的颠覆者",
+                desc: "你具有强烈的一针见血精神，是‘理所当然’的终结者。你拒绝接受任何现成的结论，总是带着反思性的目光去审视消费、性别、传统甚至真理本身。你敏锐地察觉到文化往往是权力的合谋。",
+                analysis: "你的视角融合了‘后殖民批判’与‘知识考古学’。你关注话语的构建过程，试图揭开文明外壳下那些隐秘的霸权逻辑。你是一个永不停歇的质疑者。",
+                selfReport: "你是一个解构大师，你的田野报告往往是一份充满力量的‘认知檄文’。你的使命不是去描述世界，而是去质询这个世界为何长成现在的样子。",
+                shadow: "极端的相对主义。因为一直在解构，你可能会陷入‘什么都不信’的泥潭，变得难以做出正向的建设性决策。",
+                acceptance: "在解构后进行重构。拆掉囚笼后，我们要盖一间适合居住的房子。找到那个你愿意为之守护的、哪怕不完美的信念。",
+                mentor: "玛格丽特·米德",
+                quote: "永远不要怀疑一小群有思想、有责任感的公民能改变世界。事实上，这是唯一的改变方式。",
+                keywords: ["解构话语", "文化反思", "边缘视角"],
+                books: ["《萨摩亚人的成年》", "《代沟》", "《三个原始部落的性别与气质》"],
+                traits: [50, 70, 80, 92, 40],
+                spectrum: [35, 75, 90]
+            },
+            "微观互动专家": {
+                identity: "剧场的导演",
+                desc: "你是一个微观世界的观察大师。宏大的理论对你来说往往不如一个眼神、一次并肩而行、或是一场电梯里的尴尬沉默来得真实。你擅长捕捉社交中的‘表演感’，观察每个人如何维护自己的‘前台’形象。",
+                analysis: "你倾向于‘拟剧论’。你关注互动的仪式感，研究社会交往中那些脆弱而精妙的平衡。你认为‘面子’和‘距离’是维持文明社会运转的微小齿轮。",
+                selfReport: "你认为人生就是一场永不停歇的即兴剧，每个细节都藏着社交秩序的维护机制。这种‘显微镜’式的视角让你在理解人性细节上有着无与伦比的天赋。",
+                shadow: "社交表演者的疲惫。因为太清楚大家都在‘装’，你可能会在某个瞬间感到极度的心累，渴望逃离所有的社交舞台。",
+                acceptance: "接纳偶尔的‘穿帮’。真实往往诞生在失误和尴尬中。允许自己搞砸一场表演，去拥抱那个笨拙但真实的自我。",
+                mentor: "欧文·戈夫曼",
+                quote: "人生不过是一场精心排练的剧场表演，每个人都在努力演好那个名为‘自我’的角色。",
+                keywords: ["印象管理", "剧场效应", "微观互动"],
+                books: ["《日常生活中的自我呈现》", "《避难所》", "《互动仪式》"],
+                traits: [45, 99, 70, 50, 60],
+                spectrum: [50, 50, 75]
+            },
+            "人类学织梦师": {
+                identity: "文化的诗人",
+                desc: "你是一个温柔的诗人人类学者。你不相信冰冷的数据和僵硬的结构，你相信情感、叙事和灵魂的共振。当你进入田野，你不仅在看文化，更在听那些未曾被言说的哭泣与欢笑。你倾向于用同情心去感知万物。",
+                analysis: "你的思想核心是‘心理/国民性格学派’。你关注文化的整体氛围（Pattern）和它对个人情感的滋养作用。你相信美学与道德在文化深处是统一的。",
+                selfReport: "在你眼里，人类学不是工具，而是一种‘温热的慈悲’。你擅长讲述那些具有神话色彩的个人故事，将碎片化的现实重塑为完整的生命史。",
+                shadow: "情感过载。因为太容易共情，你可能会背负他人的痛苦而前行，甚至在这个过程中迷失了自己的坐标。",
+                acceptance: "学会做‘客观的诗人’。慈悲需要力量支撑，故事需要结构依托。允许自己在共情之余，保留一双冷眼旁观的眼睛。",
+                mentor: "鲁思·本尼迪克特",
+                quote: "人类学的工作，不仅仅是去记录文化，更是去发现每一个灵魂独特的颜色。",
+                keywords: ["文化模式", "情感叙事", "诗意人类学"],
+                books: ["《菊与刀》", "《文化模式》", "《祖尼人的创世传说》"],
+                traits: [55, 50, 40, 65, 98],
+                spectrum: [85, 15, 30]
+            }
+        };
+
+        const SCHOOLS = [
+            { name: "功能主义", claim: "文化是为了满足人的基本生存与心理需求而形成的完整系统", people: "马林诺夫斯基", critique: "倾向于维持现状，忽视了历史变迁和冲突", relation: "寻找行为的‘实际用处’。" },
+            { name: "结构主义", claim: "人类思维存在普遍的二元对立逻辑（如生/熟、阴/阳）", people: "列维-斯特劳斯", critique: "过于理论化，忽视了个体能动性和情感", relation: "寻找生活背后的隐藏规矩。" },
+            { name: "符号人类学", claim: "文化是人自己编织的意义网，需要像阅读文本一样深度解码", people: "克利福德·格尔茨", critique: "解读过程过于主观，更像文学批评", relation: "对细节、隐喻和象征极度敏感。" },
+            { name: "物质文化", claim: "物件拥有社会生命，会反向塑造人的身份", people: "阿帕杜莱 / 科皮托夫", critique: "过度赋予死物‘能动性’", relation: "关注旧物背后的生命故事。" },
+            { name: "批判理论", claim: "文化不是真理，而是权力的合谋与他者的凝视", people: "福柯 / 赛义德", critique: "解构了一切，但容易陷入虚无主义", relation: "想拆穿社会常识背后的权力陷阱。" }
+        ];
+
+        const questions = [
+            {
+                id: "FIELD.01",
+                category: "饮食与结构",
+                question: "面对一颗‘生’西红柿和一锅‘熟’番茄汤，人类学家会看到什么？",
+                options: [
+                    { text: "人类告别野外的分界线", theory: "生与熟是文明的第一道门。火就像一个翻译器，把自然物变成了文化的口粮。", score: "结构主义大师" },
+                    { text: "对大自然的‘改造记录’", theory: "‘煮熟’是我们打在食物上的烙印。说明人类喜欢按自己的逻辑重塑自然。", score: "地脉观察者" },
+                    { text: "被打破的饮食旧规矩", theory: "现在的生腌挑战了‘非熟不吃’。当界限模糊了，生活方式也就变了。", score: "批判理论家" },
+                    { text: "厨房里的权力分工", theory: "谁在熬汤，谁在等待？烹饪过程暴露了家庭里的地位高低和隐形分工。", score: "社会诊断师" },
+                    { text: "一口温热的情感寄托", theory: "食物是有温度的连接，这锅汤承载了‘家’的情感。", score: "人类学织梦师" }
+                ]
+            },
+            {
+                id: "FIELD.02",
+                category: "身体技术",
+                question: "你在低头刷手机时的‘习惯姿势’，意味着：",
+                options: [
+                    { text: "社会教给你的肌肉记忆", theory: "姿势不是天生的。你的坐姿、站法其实都是社会训练出来的‘习惯手稿’。", score: "生活考古学家" },
+                    { text: "肉身对机器的卑微妥协", theory: "为什么是我们适应椅子高度？这说明系统效率有时比人的舒服更重要。", score: "批判理论家" },
+                    { text: "你正进化成‘电子人’", theory: "手机已成你的外挂器官。这个低头姿势是肉身与电子产品‘合体’的证明。", score: "赛博人类学家" },
+                    { text: "一种职业身份的规训", theory: "白领的颈椎病与农夫的粗手茧，本质上都是社会阶层在身体上的抓痕。", score: "社会诊断师" },
+                    { text: "寻找私人空间的动作", theory: "通过低头，你在闹市区里给自己造了一个隐形的‘避难所’。", score: "微观互动专家" }
+                ]
+            },
+            {
+                id: "FIELD.03",
+                category: "物品灵性",
+                question: "旧毛衣上那股‘前主人的气息’，为什么总是挥之不去？",
+                options: [
+                    { text: "东西里藏着人的‘灵魂’", theory: "礼物是有灵性的。原主人的影子会像磁铁一样跟着它，渴望回馈。", score: "符号解读专家" },
+                    { text: "对他人的痕迹感到不安", theory: "我们喜欢划清界限。一旦别人的生活痕迹太重，就会触碰‘自我边界’防线。", score: "地脉观察者" },
+                    { text: "物品在社会里的‘简历’", theory: "东西不是静止的。流浪和转手让它从工厂货变成了一部‘社会史’。", score: "生活考古学家" },
+                    { text: "一种没结清的人情债", theory: "交换旧物就是在交换关系。那股气息提醒你：背后的拉扯还在。", score: "结构主义大师" },
+                    { text: "连接旧时光的‘锚点’", theory: "那股气息是你进入过去大门的开关。它让消失的时间变温热了。", score: "人类学织梦师" }
+                ]
+            },
+            {
+                id: "FIELD.04",
+                category: "空间规矩",
+                question: "为什么掉在鞋上的米饭会瞬间从‘食物’变脏？",
+                options: [
+                    { text: "位置决定了事物的属性", theory: "东西本身不脏，错位才脏。米饭出现在鞋上挑战了大脑里的‘秩序’。", score: "结构主义大师" },
+                    { text: "文明感对危险的预警", theory: "我们的文明感很胆小：只要边界一模糊，大脑就会立刻拉响警报。", score: "地脉观察者" },
+                    { text: "空间等级的体现", theory: "桌子是圣地，地板是俗世。我们通过定义脏，给空间划出了等级。", score: "社会诊断师" },
+                    { text: "对身体纯净的执着", theory: "这种不适感源于我们对身体内外彻底隔绝的极度迷恋。", score: "符号解读专家" },
+                    { text: "逃避浪费的道德压力", theory: "把它定性为脏得不能吃了，是在推卸浪费粮食的罪恶感。", score: "批判理论家" }
+                ]
+            },
+            {
+                id: "FIELD.05",
+                category: "现代景观",
+                question: "在机场候机大厅这种‘非地方’，你觉得自己像：",
+                explanation: "‘非地方’（Non-place）是由人类学家马克·奥热提出的概念，指那些丧失了个性与历史的标准化空间。",
+                options: [
+                    { text: "丧失个性的‘代码人’", theory: "在这里你只是登机牌上的条形码，是全球标准化流动中的一个临时单位。", score: "生活考古学家" },
+                    { text: "一颗追求高效的原子", theory: "机场的设计都在催你离开。这里没感情，只有最高效的‘通过逻辑’。", score: "社会诊断师" },
+                    { text: "悬浮在‘阈限状态’里", theory: "你脱离了日常身份，进入了一个中间状态。这是最有灵感的裂缝。", score: "灵魂测绘师" },
+                    { text: "消费主义的全球节点", theory: "全世界的候机室都一样，因为消费的逻辑统一了全世界。", score: "批判理论家" },
+                    { text: "行为观察的微缩剧场", theory: "不同肤色的人汇聚又消失。机场是展示社会流动性的绝佳窗口。", score: "微观互动专家" }
+                ]
+            },
+            {
+                id: "FIELD.06",
+                category: "消费文化",
+                question: "买一个名牌包，本质上是在买：",
+                options: [
+                    { text: "阶层的‘准入证’", theory: "包包不再是容器，而是武器。它宣告了你属于社会金字塔的哪一层。", score: "社会诊断师" },
+                    { text: "对‘理想生活’的幻觉", theory: "我们买的往往不是皮革，而是广告里包装出来的虚构自我。", score: "符号解读专家" },
+                    { text: "给自己打气的‘仪式道具’", theory: "购物是自我建设仪式。这些东西像拼图，帮你拼凑出更强大的自己。", score: "人类学织梦师" },
+                    { text: "对旧身份的切割仪式", theory: "买新包标志着人生转折。它是消费版的成年礼。", score: "灵魂测绘师" },
+                    { text: "品牌图腾的崇拜", theory: "我们迷恋品牌故事。品牌成了现代社会的新宗教。", score: "批判理论家" }
+                ]
+            },
+            {
+                id: "FIELD.07",
+                category: "社交心理",
+                question: "在电梯里盯着楼层数字不放，其实是在：",
+                options: [
+                    { text: "保持‘礼貌的无视’", theory: "这是都市默契：我不看你，是为了保护彼此的安全感。", score: "微观互动专家" },
+                    { text: "建立‘透明的堡垒’", theory: "身体太近，精神必须远点。盯着数字是在心里划出免干扰区。", score: "灵魂测绘师" },
+                    { text: "开启社交‘省电模式’", theory: "社交压力太重。不打招呼成了留给自己的呼吸空间。", score: "批判理论家" },
+                    { text: "服从空间的‘规训’", theory: "电梯设计强迫人僵硬。空间结构决定了我们此刻必须表现得像机器人。", score: "结构主义大师" },
+                    { text: "化解陌生相处的尴尬", theory: "通过盯着一个点，我们抵消了两个陌生人共处一室的荒诞感。", score: "符号解读专家" }
+                ]
+            },
+            {
+                id: "FIELD.08",
+                category: "数字生存",
+                question: "朋友圈里的那张‘精修照片’，真的你吗？",
+                options: [
+                    { text: "舞台上的‘前台’表演", theory: "人生如戏。朋友圈就是你的前台，你精心管理高光形象。", score: "微观互动专家" },
+                    { text: "对‘被看见’的极度渴求", theory: "我们需要赞。这是数字时代的货币，确认存在感。", score: "批判理论家" },
+                    { text: "正在创作‘个人神话’", theory: "你在写一部名为《我》的小说。滤镜就是特效。", score: "符号解读专家" },
+                    { text: "留给未来的‘完美档案’", theory: "精修是为了对抗遗忘。你希望留下的记录是无瑕的。", score: "生活考古学家" },
+                    { text: "数字化重塑的肉身", theory: "现实有缺憾，数字身份给了我们重塑完美自我的权力。", score: "赛博人类学家" }
+                ]
+            },
+            {
+                id: "FIELD.09",
+                category: "时间观念",
+                question: "现代人的‘朝九晚五’和古人的日出而作区别在于：",
+                options: [
+                    { text: "时间从‘生活’变成‘商品’", theory: "以前看太阳，现在看表。时间不再是节奏，而是卖给公司的单位。", score: "生活考古学家" },
+                    { text: "身体被强行‘对表’", theory: "闹钟响了全世界同步。这是人类肉体的大规模‘工业调频’。", score: "结构主义大师" },
+                    { text: "社会整合的‘强力胶’", theory: "大家都按同一个节奏活，保证了千万台机器同时运转。", score: "社会诊断师" },
+                    { text: "追求效率的‘线性迷信’", theory: "现代人总觉得不能虚度。这种紧迫感是现代文化的特产。", score: "批判理论家" },
+                    { text: "生命律动被‘数字切割’", theory: "我们让生命适应枯燥的数字，而不是顺应身体的起伏。", score: "地脉观察者" }
+                ]
+            },
+            {
+                id: "FIELD.10",
+                category: "多物种关系",
+                question: "我们将猫狗称为‘毛孩子’，这反映了：",
+                options: [
+                    { text: "把动物招安进亲属网", theory: "动物不再是工具。它们被赋予家人名义，成了不用说话的成员。", score: "结构主义大师" },
+                    { text: "孤独社会的‘感情代偿’", theory: "邻里疏远了，宠物承担了本该由亲友提供的心理安慰。", score: "社会诊断师" },
+                    { text: "多物种共生的‘实验’", theory: "我们与伴侣物种共同演化。它们映照出人类对亲密的渴望。", score: "人类学织梦师" },
+                    { text: "人类优越感的表达", theory: "拟人化消解了兽性，让它们彻底变成‘文化附件’。", score: "批判理论家" },
+                    { text: "亲属称谓的‘界限突破’", theory: "这说明家人的定义正在跨越物种。", score: "符号解读专家" }
+                ]
+            },
+            {
+                id: "FIELD.11",
+                category: "终章：人类学的目光",
+                question: "完成测试后再走入家门，你眼中的世界会：",
+                options: [
+                    { text: "变得‘不再理所当然’", theory: "人类学的真谛就是把熟悉的变陌生。日常是精密的拼图。", score: "灵魂测绘师" },
+                    { text: "到处都是待解开的‘谜题’", theory: "你掌握了钥匙。哪怕一粒灰也能读出文明刻在上面的抓痕。", score: "批判理论家" },
+                    { text: "多了一份温热的慈悲", theory: "当你理解了背后的逻辑，你就学会了更宽容地接纳世界。", score: "人类学织梦师" },
+                    { text: "看到万物底层的‘根’", theory: "你不再看表面。你会看到土地和时间如何交织出这一切。", score: "地脉观察者" },
+                    { text: "觉察到无处不在的‘共生’", theory: "你会看到人和机器、人和环境之间剪不断理还乱的连接。", score: "赛博人类学家" }
+                ]
+            }
+        ];
+
+        // --- 视觉辅助组件 ---
+
+        // Lucide 图标包装器
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        const RadarChart = ({ data }) => {
+            const points = data.map((val, i) => {
+                const angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
+                const r = val * 0.42; 
+                return `${50 + r * Math.cos(angle)},${50 + r * Math.sin(angle)}`;
+            }).join(' ');
+            const gridLines = [10, 20, 30, 40].map(r => (
+                <polygon key={r} points={[0,1,2,3,4].map(i => {
+                    const angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
+                    return `${50 + r * Math.cos(angle)},${50 + r * Math.sin(angle)}`;
+                }).join(' ')} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="0.5" />
+            ));
+            return (
+                <div className="w-64 h-64 mx-auto relative">
+                    <svg viewBox="0 0 100 100" className="w-full h-full">
+                        {gridLines}
+                        <polygon points={points} fill="rgba(26,26,26,0.03)" stroke="#1a1a1a" strokeWidth="1.2" />
+                        {["物性", "社交", "逻辑", "反思", "感性"].map((label, i) => {
+                            const angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
+                            const r = 46;
+                            return <text key={i} x={50 + r * Math.cos(angle)} y={50 + r * Math.sin(angle)} textAnchor="middle" fontSize="4.5" className="font-sans font-bold fill-black/35 uppercase tracking-widest">{label}</text>;
+                        })}
+                    </svg>
+                </div>
+            );
+        };
+
+        const StatBar = ({ label, value }) => (
+            <div className="w-full mb-6 text-left">
+                <div className="flex justify-between text-[10px] font-sans font-black uppercase tracking-widest text-black/50 mb-2"><span>{label}</span><span>{value}%</span></div>
+                <div className="h-[2px] bg-black/5 w-full relative"><div className="absolute top-0 left-0 h-full bg-black/60 transition-all duration-1000" style={{ width: `${value}%` }}></div></div>
+            </div>
+        );
+
+        const SpectrumBar = ({ label, left, right, value }) => (
+            <div className="w-full mb-10 group text-left">
+                <div className="flex justify-between text-[9px] font-sans font-black uppercase tracking-[0.2em] text-black/30 mb-3"><span>{left}</span><span>{right}</span></div>
+                <div className="h-[1.5px] bg-black/5 w-full relative"><div className="absolute w-3 h-3 bg-black rounded-full top-1/2 -translate-y-1/2 transition-all duration-1000 shadow-sm" style={{ left: `${Math.max(5, Math.min(95, value))}%` }}></div></div>
+                <div className="text-[10px] text-center mt-3 font-serif italic text-black/40">{label}</div>
+            </div>
+        );
+
+        const AuxiliaryGraphics = () => {
+            const icons = [
+                { label: "太阳", path: "M50 12 L53 38 L78 18 L58 44 L88 50 L58 56 L78 82 L53 62 L50 88 L47 62 L22 82 L42 56 L12 50 L42 44 L22 18 L47 38 Z", isStroke: false },
+                { label: "森林", path: "M25 75 L35 45 L45 75 M45 75 L55 35 L65 75 M65 75 L75 45 L85 75", isStroke: true, sw: 4 },
+                { label: "大地", path: "M15 85 L40 35 L60 85 L80 45 L95 85 Z", isStroke: false },
+                { label: "星辰", path: "M25 25 L75 75 M75 25 L25 75 M50 15 L50 85 M15 50 L85 50", isStroke: true, sw: 4 }
+            ];
+            return (
+                <div className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full opacity-90 py-6 gap-3 md:gap-0 overflow-x-auto no-scrollbar">
+                    {icons.map((icon, i) => (
+                        <div key={i} className="flex flex-col items-center flex-shrink-0 group py-4">
+                            <div className="bg-[#1a1a1a] text-[#fdfcf9] text-[6px] px-1.5 py-0.5 mb-2 scale-90 font-sans tracking-tighter opacity-80">{icon.label}</div>
+                            <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-[#1a1a1a] group-hover:scale-110 transition-transform">
+                                <svg viewBox="0 0 100 100" className={`w-10 h-10 md:w-14 md:h-14 ${icon.isStroke ? 'fill-none stroke-current' : 'fill-current'}`} strokeWidth={icon.sw}><path d={icon.path} strokeLinecap="round" /></svg>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [step, setStep] = useState('intro');
+            const [currentQ, setCurrentQ] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [tempSelection, setTempSelection] = useState([]); 
+            const [viewingIndex, setViewingIndex] = useState(null);
+            const [showSchoolDossier, setShowSchoolDossier] = useState(false);
+
+            const handleStart = () => {
+                setStep('quiz');
+                setCurrentQ(0);
+                setAnswers([]);
+                setTempSelection([]);
+                setViewingIndex(null);
+            };
+
+            const toggleSelection = (idx, e) => {
+                e.stopPropagation();
+                setTempSelection(prev => 
+                    prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+                );
+            };
+
+            const nextQuestion = () => {
+                if (tempSelection.length === 0) return;
+                const newAnswers = [...answers];
+                newAnswers[currentQ] = tempSelection;
+                setAnswers(newAnswers);
+                setTempSelection([]);
+                setViewingIndex(null);
+                if (currentQ < questions.length - 1) {
+                    setCurrentQ(currentQ + 1);
+                } else {
+                    setStep('result');
+                }
+            };
+
+            const resultID = useMemo(() => {
+                if (answers.length === 0) return "地脉观察者";
+                const counts = {};
+                answers.forEach((qSel, qIdx) => {
+                    qSel.forEach(optIdx => {
+                        const scoreType = questions[qIdx]?.options[optIdx]?.score;
+                        if (scoreType) counts[scoreType] = (counts[scoreType] || 0) + 1;
+                    });
+                });
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                return sorted.length > 0 ? sorted[0][0] : "地脉观察者";
+            }, [answers]);
+
+            const persona = PERSONAS[resultID] || PERSONAS["地脉观察者"];
+
+            return (
+                <div className="min-h-screen bg-[#fdfcf9] text-[#1a1a1a] font-serif flex flex-col items-center justify-center relative overflow-x-hidden selection:bg-[#1a1a1a] selection:text-[#fdfcf9]">
+                    <div className="fixed inset-0 pointer-events-none opacity-[0.06] mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+                    
+                    <div className={`w-full max-w-5xl min-h-screen md:min-h-[92vh] p-8 md:p-16 flex flex-col relative z-10 bg-[#fdfcf9] shadow-[0_15px_60px_rgba(0,0,0,0.03)] border border-black/[0.03] md:my-6 transition-all duration-700 overflow-hidden`}>
+                        
+                        {step === 'intro' && (
+                            <div className="flex-1 flex flex-col justify-between animate-in fade-in duration-1000 relative">
+                                <div className="flex flex-col md:flex-row justify-between text-[8px] md:text-[10px] tracking-[0.35em] text-[#1a1a1a]/50 uppercase font-sans border-b border-black/[0.08] pb-6">
+                                    <div className="font-bold">MET: THICK DESCRIPTION / 深描</div>
+                                    <div className="md:text-right mt-2 md:mt-0 font-bold uppercase tracking-widest opacity-40 text-left">Cultural Fieldwork Archive</div>
+                                </div>
+                                <div className="flex-1 flex flex-col md:flex-row items-center mt-12 md:mt-0">
+                                    <div className="w-full md:w-1/4 flex justify-center md:justify-start md:pl-6 mb-12 md:mb-0"><AuxiliaryGraphics /></div>
+                                    <div className="w-full md:w-3/4 flex flex-col items-center md:items-end text-center md:text-right space-y-12">
+                                        <h2 className="text-5xl md:text-8xl font-black tracking-[0.3em] text-[#1a1a1a] leading-tight filter drop-shadow-sm">万物皆可<br/>人类学</h2>
+                                        <div className="w-20 md:w-32 h-[1.5px] bg-[#1a1a1a]/30"></div>
+                                        <p className="max-w-sm text-[13px] leading-[2.5] text-[#1a1a1a]/65 italic">勾选你认同的视角。你的每一次选择，都是人类学地图上的一次坐标点。多重勾选将揭示你最底层的认知抓痕。</p>
+                                    </div>
+                                </div>
+                                <div className="mt-auto border-t border-black/[0.08] pt-12 flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
+                                   <button onClick={handleStart} className="group flex items-center gap-10 hover:translate-x-4 transition-all duration-700 active:scale-95">
+                                       <div className="text-sm md:text-base tracking-[0.7em] font-sans font-black uppercase border-b-2 border-black pb-3">INITIATE ARCHIVE</div>
+                                       <div className="h-[2px] w-14 bg-black scale-x-50 group-hover:scale-x-125 transition-transform origin-left hidden md:block opacity-60"></div>
+                                   </button>
+                                   <div className="text-center md:text-right text-3xl md:text-5xl font-light tracking-[0.3em] italic text-[#1a1a1a] opacity-80 uppercase leading-none">地脉人烟</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {step === 'quiz' && (
+                            <div className="flex-1 flex flex-col animate-in fade-in duration-700">
+                                <div className="flex justify-between items-center border-b border-black/[0.1] pb-6 mb-12">
+                                    <button onClick={() => (currentQ > 0 ? setCurrentQ(currentQ - 1) : setStep('intro'))} className="text-[10px] md:text-[11px] font-sans tracking-[0.4em] text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-colors uppercase font-black">← UNDO</button>
+                                    <div className="text-[10px] md:text-[11px] tracking-[0.7em] font-sans text-[#1a1a1a]/30 uppercase font-black font-bold">LOG_0{currentQ + 1}</div>
+                                </div>
+                                <div className="flex-1 flex flex-col md:flex-row gap-12 md:gap-24 items-start overflow-y-auto pr-2 custom-scrollbar no-scrollbar pb-12">
+                                    <div className="w-full md:w-5/12 space-y-10 text-left">
+                                        <div className="text-[11px] md:text-[12px] tracking-[0.6em] text-[#1a1a1a]/40 uppercase font-sans border-l-[3px] border-black/10 pl-8 font-black text-left">Field_Query</div>
+                                        <h2 className="text-2xl md:text-4xl font-light leading-[1.6] text-[#1a1a1a] tracking-tighter">{questions[currentQ]?.question}</h2>
+                                        {questions[currentQ]?.explanation && <div className="bg-black/[0.02] p-6 border-l-2 border-black/20 italic text-left"><p className="text-[12px] leading-relaxed text-stone-500 font-serif">注脚: {questions[currentQ].explanation}</p></div>}
+                                        <div className="flex items-center gap-3 text-stone-400"><Icon name="book-open" size={14} /><p className="text-[9px] uppercase tracking-widest italic font-sans font-bold">点击文字读档解释，点击方框最终勾选</p></div>
+                                    </div>
+                                    <div className="w-full md:w-7/12 space-y-4">
+                                        {questions[currentQ]?.options.map((option, idx) => (
+                                            <div key={idx} className="group">
+                                                <button onClick={() => setViewingIndex(viewingIndex === idx ? null : idx)} className={`w-full text-left p-6 transition-all duration-500 border-l-[4px] flex items-start gap-6 ${viewingIndex === idx ? 'border-black bg-black/[0.015]' : 'border-transparent bg-black/[0.005]'}`}>
+                                                    <div onClick={(e) => toggleSelection(idx, e)} className={`w-6 h-6 border border-black flex items-center justify-center shrink-0 transition-colors ${tempSelection.includes(idx) ? 'bg-black text-[#fdfcf9]' : 'bg-white'}`}>
+                                                        {tempSelection.includes(idx) && <Icon name="check" size={16} />}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <span className="text-sm md:text-xl leading-relaxed font-medium block">{option.text}</span>
+                                                        {viewingIndex === idx && <div className="mt-4 pt-4 border-t border-black/5 animate-in slide-in-from-top-2 duration-300"><p className="text-[#1a1a1a] italic leading-[2.4] text-sm md:text-lg font-serif opacity-80">“{option.theory}”</p></div>}
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <div className="pt-10 flex items-center justify-between">
+                                           <div className="text-[10px] font-sans tracking-[0.2em] text-stone-400 uppercase font-bold">已确认 {tempSelection.length} 个视点</div>
+                                           <button onClick={nextQuestion} disabled={tempSelection.length === 0} className={`flex items-center gap-10 px-12 py-3.5 text-xs tracking-[0.6em] font-black uppercase transition-all ${tempSelection.length > 0 ? 'bg-black text-[#fdfcf9]' : 'bg-stone-100 text-stone-300'}`}>
+                                               {currentQ < questions.length - 1 ? "NEXT_LOG" : "FINAL_REPORT"}
+                                               <Icon name="arrow-right" size={20} className="ml-2" />
+                                           </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {step === 'result' && (
+                            <div className="flex-1 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar pb-32 pr-2 custom-scrollbar">
+                                
+                                <div className="text-center space-y-12 mb-32 pt-16">
+                                    <div className="text-[10px] tracking-[1.5em] text-black/30 uppercase font-black">ARCHETYPE ANALYSIS REPORT</div>
+                                    <div className="relative inline-block py-10">
+                                        <div className="text-6xl md:text-8xl font-black tracking-tighter text-[#1a1a1a] leading-none uppercase filter drop-shadow-sm">{resultID}</div>
+                                        <div className="mt-8 text-[10px] tracking-[1.2em] text-black/50 uppercase font-bold">—— {persona.identity} ——</div>
+                                    </div>
+                                    <div className="flex justify-center gap-6 font-sans">
+                                        <div className="px-6 py-2 border border-black/10 text-[9px] tracking-widest font-black uppercase">信任度 95.8%</div>
+                                        <div className="px-6 py-2 bg-[#1a1a1a] text-white text-[9px] tracking-widest font-black uppercase">IDENTITY VALIDATED</div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 border-y border-black/[0.08] py-24 mb-40">
+                                   <div>
+                                      <div className="text-[10px] tracking-[0.6em] text-black/30 uppercase font-black mb-12 border-l-4 border-black pl-6 text-left">叙事基因分析 / ARCHIVE</div>
+                                      <StatBar label="感官灵敏" value={persona.traits[0]} />
+                                      <StatBar label="理性逻辑" value={persona.traits[2]} />
+                                      <StatBar label="情感共振" value={persona.traits[4]} />
+                                      <StatBar label="前瞻思维" value={persona.traits[3]} />
+                                   </div>
+                                   <div className="flex flex-col items-center">
+                                      <RadarChart data={persona.traits} />
+                                      <div className="mt-8 text-[8px] tracking-[0.5em] uppercase text-black/20 font-black">Cognitive Geometry Mapping</div>
+                                   </div>
+                                </div>
+
+                                <div className="max-w-4xl mx-auto space-y-32 mb-48 text-center md:text-left">
+                                   <section className="space-y-12">
+                                      <div className="bg-black text-[#fdfcf9] px-5 py-1.5 text-[9px] tracking-widest font-black uppercase inline-block">精神解读报告 / THE SELF</div>
+                                      <div className="space-y-20">
+                                        <div className="text-left">
+                                           <div className="text-[10px] text-black/30 tracking-[0.5em] uppercase font-black mb-8">文学原型定义 / ARCHETYPE IDENTITY</div>
+                                           <p className="text-2xl md:text-4xl leading-[2.2] text-black/90 font-serif italic pr-0 md:pr-12 text-left">“{persona.desc}”</p>
+                                        </div>
+                                        <div className="max-w-3xl mx-auto md:ml-0 border-l-4 border-black/10 pl-10 text-left">
+                                           <div className="text-[10px] text-black/30 tracking-[0.5em] uppercase font-black mb-6">叙事风格建议 / WRITING PROTOCOL</div>
+                                           <p className="text-base md:text-lg leading-[2.4] text-black/60 font-serif italic">“{persona.selfReport}”</p>
+                                        </div>
+                                      </div>
+                                   </section>
+
+                                   <section className="border-t border-black/[0.06] pt-24 text-left">
+                                      <div className="flex flex-col md:flex-row justify-between items-start gap-12 text-left">
+                                        <div className="w-full md:w-2/3 text-left">
+                                           <div className="text-[10px] text-black/30 tracking-[0.6em] uppercase font-black mb-8">深度逻辑分析 / INTERNAL LOGIC</div>
+                                           <p className="text-xl md:text-2xl leading-[2.6] text-black/80 font-serif italic text-left">“{persona.analysis}”</p>
+                                        </div>
+                                        <div className="w-full md:w-1/3 p-10 bg-black/[0.015] border border-black/[0.03] text-center">
+                                           <div className="text-[8px] font-black text-black/20 uppercase tracking-widest mb-4">Metadata Analysis</div>
+                                           <div className="text-3xl font-black opacity-10 uppercase tracking-widest">Archive</div>
+                                        </div>
+                                      </div>
+                                   </section>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-48 px-4 text-left">
+                                   <div className="border border-red-900/10 p-12 space-y-10 bg-red-50/[0.04] rounded-sm shadow-sm text-left">
+                                      <div className="flex justify-between items-center border-b border-red-900/10 pb-6 text-left"><span className="text-[12px] tracking-widest font-black text-red-900/40 uppercase">阴影投射 / SHADOW</span></div>
+                                      <div><div className="text-[10px] text-red-900/30 uppercase font-black mb-4 tracking-widest text-left">核心焦虑 / ANXIETY</div><p className="text-xl font-serif italic text-red-900/70 leading-relaxed text-left">“{persona.shadow}”</p></div>
+                                   </div>
+                                   <div className="border border-black/[0.08] p-12 space-y-10 bg-white shadow-sm rounded-sm text-left">
+                                      <div className="flex justify-between items-center border-b border-black/[0.08] pb-6 text-left"><span className="text-[12px] tracking-widest font-black text-black/40 uppercase">检视与自洽 / ACCEPTANCE</span></div>
+                                      <div><div className="text-[10px] text-black/30 uppercase font-black mb-4 tracking-widest text-left">调试情境 / SITUATION</div><p className="text-xl font-serif italic border-b border-black/10 pb-2 leading-relaxed text-left">“{persona.acceptance}”</p></div>
+                                   </div>
+                                </div>
+
+                                <div className="bg-black/[0.02] p-16 md:p-24 border-y border-black/[0.1] mb-48 text-left">
+                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-20 text-left">
+                                      <div className="space-y-12 text-left">
+                                        <div className="text-[10px] tracking-[0.6em] font-black text-black/30 uppercase text-left">MATCHED MENTOR / 导师匹配</div>
+                                        <div className="flex items-center gap-10 text-left">
+                                          <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center text-[#fdfcf9] font-black text-4xl shadow-xl">{persona.mentor[0]}</div>
+                                          <div><div className="text-2xl font-black tracking-widest leading-none mb-2 text-left">{persona.mentor}</div><div className="text-[10px] font-sans text-black/40 uppercase tracking-widest">Founding Figure</div></div>
+                                        </div>
+                                        <blockquote className="text-xl italic font-serif leading-[2.4] border-l-4 border-black pl-10 text-left">“{persona.quote}”</blockquote>
+                                        <div className="flex flex-wrap gap-4">{persona.keywords.map(k => <span key={k} className="text-[9px] font-black border border-black/25 px-4 py-1.5 uppercase tracking-widest bg-white shadow-sm">#{k}</span>)}</div>
+                                      </div>
+                                      <div className="text-left">
+                                        <div className="text-[10px] tracking-[0.6em] font-black text-black/30 uppercase mb-12 text-left">TENSION SPECTRA / 认知光谱</div>
+                                        <SpectrumBar left="大地起源" right="赛博未来" label="物理根基偏好" value={persona.spectrum[0]} />
+                                        <SpectrumBar left="感性直觉" right="刚性结构" label="逻辑偏好" value={persona.spectrum[1]} />
+                                        <SpectrumBar left="边缘个体" right="宏观系统" label="视角偏好" value={persona.spectrum[2]} />
+                                      </div>
+                                   </div>
+                                </div>
+
+                                <div className="max-w-4xl mx-auto space-y-16 mb-48 px-4 text-left">
+                                   <div className="text-center font-sans"><span className="text-[12px] tracking-[1.2em] text-black/40 font-black uppercase">思想进阶书单推荐 / READINGS</span></div>
+                                   <div className="space-y-6">
+                                     {persona.books.map((b, i) => (
+                                       <div key={b} className="border border-black/[0.08] p-10 flex justify-between items-center group hover:bg-black/[0.01] transition-all cursor-pointer bg-white shadow-sm rounded-sm text-left">
+                                          <div className="flex items-center gap-12 text-left">
+                                            <div className="text-2xl font-serif text-black/20 italic font-black">0{i+1}</div>
+                                            <div><div className="text-2xl font-black mb-1 leading-none group-hover:underline decoration-1 underline-offset-8 text-left">《{b}》</div><p className="text-[10px] text-black/40 uppercase font-bold tracking-widest">Selected Anthropological Archive</p></div>
+                                          </div>
+                                          <div className="px-6 py-2 bg-black text-[#fdfcf9] text-[9px] font-black uppercase tracking-widest">Recommend</div>
+                                       </div>
+                                     ))}
+                                   </div>
+                                </div>
+
+                                <div className="flex justify-center pt-24 border-t-4 border-[#1a1a1a] mb-20 text-center">
+                                  <button onClick={handleStart} className="flex items-center gap-10 text-[#fdfcf9] bg-[#1a1a1a] transition-all font-sans font-black uppercase text-[14px] tracking-[1.5em] group active:scale-95 py-8 px-20 shadow-2xl">
+                                    <Icon name="refresh-ccw" size={22} className="group-hover:rotate-180 transition-transform duration-1000 opacity-80" /> RE-SEARCH / 重记灵魂
+                                  </button>
+                                </div>
+
+                                <div className="max-w-4xl mx-auto border-t border-black/[0.1] pt-16 text-left">
+                                  <button onClick={() => setShowSchoolDossier(!showSchoolDossier)} className="w-full flex items-center justify-between group py-4 text-left">
+                                    <div className="text-left">
+                                        <div className="text-4xl font-black tracking-[0.25em] mb-4 uppercase leading-none text-left">Anthro Dossier</div>
+                                        <div className="text-[11px] tracking-[0.5em] text-black/30 uppercase font-black border-l-2 border-black pl-4 text-left">人类学流派档案实验室 (点击阅读)</div>
+                                    </div>
+                                    {showSchoolDossier ? <Icon name="chevron-up" size={40} /> : <Icon name="chevron-down" size={40} />}
+                                  </button>
+                                  {showSchoolDossier && (
+                                    <div className="mt-20 animate-in slide-in-from-top-10 duration-700 overflow-x-auto text-left">
+                                      <table className="w-full text-[14px] text-left border-collapse font-serif leading-loose min-w-[800px]">
+                                        <thead><tr className="border-b-2 border-black"><th className="py-8 font-black uppercase tracking-[0.2em]">学派</th><th className="py-8 font-black uppercase tracking-[0.2em]">主张</th><th className="py-8 font-black uppercase tracking-[0.2em]">代表</th><th className="py-8 font-black uppercase tracking-[0.2em]">批评</th></tr></thead>
+                                        <tbody className="divide-y divide-black/[0.1]">
+                                          {SCHOOLS.map((s, i) => (
+                                            <tr key={i} className="group hover:bg-black/[0.01]"><td className="py-10 pr-6 font-black text-xl">{s.name}</td><td className="py-10 pr-10 italic opacity-85 text-lg leading-relaxed text-left">“{s.claim}”</td><td className="py-10 pr-10 font-medium text-black/70">{s.people}</td><td className="py-10 text-black/60 font-sans"><div className="leading-relaxed mb-6">{s.critique}</div><div className="pt-4 border-t border-black/[0.06] text-[10px] font-black uppercase text-black/35 tracking-wider italic"><span className="text-black/50 mr-2">关联:</span> {s.relation}</div></td></tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <footer className="mt-16 text-[#1a1a1a]/30 text-[10px] tracking-[1em] uppercase text-center pb-24 opacity-50 font-black">ARCHÉ THOUGHT SHOP / FIELDWORK ARCHIVE © 2025</footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
