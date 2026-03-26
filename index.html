@@ -29,7 +29,6 @@
         
         .text-red-arche { color: #b54949; }
         .text-blue-arche { color: #4a6fa5; }
-        .large-stat { font-family: 'Noto Sans SC', sans-serif; font-weight: 900; font-size: 3.2rem; line-height: 1; color: #1a1a1a; }
         .quote-left { border-left: 2px solid rgba(0,0,0,0.08); padding-left: 1.5rem; }
     </style>
 </head>
@@ -39,7 +38,7 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect, useRef } = React;
 
-        // --- 核心人格档案数据：极大增加了文字量 ---
+        // --- 核心人格档案数据 ---
         const PERSONAS = {
             "地脉观察者": {
                 identity: "地脉观察者",
@@ -57,7 +56,6 @@
                 quote: "你要走出扶手椅，去田野里生活，去感受那温热的人烟，这是唯一理解文化的方式。",
                 books: ["《西太平洋的航海者》", "《文化论》"],
                 keywords: ["参与观察", "物质溯源", "功能互惠"],
-                traits: [91, 38, 85, 78],
                 confidence: "96.2%"
             },
             "符号解读专家": {
@@ -74,9 +72,8 @@
                 mentorName: "克利福德·格尔茨 (Geertz)",
                 mentorDeepDive: "格尔茨是解释人类学的教父。他主张‘深描’：他认为人类学的工作不是去寻找客观规律，而是去阅读某种文化文本。他教导我们：人是生活在自己织就的意义之网中的动物。理解一个动作，需要理解该文化赋予该动作的所有潜在含义。这正是你的天赋所在。",
                 quote: "文化不是一种客观的力量，它是人类自己编织并悬挂在上面的意义之网。",
-                books: ["《文化的解释》", "《作为文化的艺术》"],
+                books: ["《文化的解释》", "《地方性知识》"],
                 keywords: ["深描阅读", "意义编织", "解码灵感"],
-                traits: [88, 94, 45, 62],
                 confidence: "94.8%"
             },
             "赛博人类学家": {
@@ -85,7 +82,7 @@
                 archetypeIdentity: "“你站在进化的最前沿，正在目睹人类如何从碳基躯壳中羽化，在电信号中寻找新的归宿。手机已成你的外挂器官，算法即是你的图腾。”",
                 writingProtocol: "采用碎片化、超链接叙事。打破传统的线性叙事逻辑，关注信息的分布式共鸣。要在文字里建立一个‘节点’，让叙事像光纤一样穿梭在不同的次元。你的文字应该带有某种数字的冰冷感与电荷的跳动感。",
                 clinicalSymptom: "断网焦虑与本体论崩解。你的身份感高度依赖电信号的实时反馈。一旦失去数字中介，你可能会感到本体论层面的空洞，仿佛自己从未存在。你在物理空间中显得有些游离，灵魂似乎总是在服务器间漫游。",
-                existentialCounsel: "去触摸粗糙的泥土。算法能优化你的路线，但无法优化你被雨淋湿时的战栗感。找回你的‘模拟信号’。尝试在不联网的状态下观察一次日落，去感受那种无法被代码重排的、粗野的原始能量。 ",
+                existentialCounsel: "去触摸粗糙的泥土。算法能优化你的路线，但无法优化你被雨淋湿时的战栗感。找回你的‘模拟信号’。尝试在不联网的状态下观察一次日落，去感受那种无法被代码重排的、粗野的原始能量。",
                 internalLogic: "你的精神内核是‘系统的无界融合’。你认为自然与机器、文化与技术的界限早已消融。人类正在成为某种混合的图腾，你关注的是这个新物种如何定义爱与归属。",
                 manifestation: "前瞻思维极强，擅长跨界逻辑映射。你对电信号重塑情感的过程有着天才般的洞察力。你是数字原住民中的侦察兵，在二进制的丛林中记录着文明的进化。",
                 shadowTitle: "被算法反噬的身份恐慌",
@@ -95,7 +92,6 @@
                 quote: "我宁愿做一个赛博格，也不愿做一个所谓的女神。",
                 books: ["《类人猿、赛博格和女人》", "《伴侣物种宣言》"],
                 keywords: ["人机共生", "算法民族志", "比特灵魂"],
-                traits: [42, 85, 98, 91],
                 confidence: "95.5%"
             },
             "结构主义大师": {
@@ -114,7 +110,6 @@
                 quote: "我关心的是那个‘放之四海而皆准’的脑内编译器。",
                 books: ["《忧郁的热带》", "《结构人类学》"],
                 keywords: ["二元对立", "普遍语法", "恒常秩序"],
-                traits: [32, 65, 99, 58],
                 confidence: "97.1%"
             },
             "生活考古学家": {
@@ -133,7 +128,6 @@
                 quote: "物品也有它的社会生命和传记，它拥有不同的人格。",
                 books: ["《物的社会生活》", "《物质文化读本》"],
                 keywords: ["物品生命史", "物质记忆", "去商品化"],
-                traits: [98, 45, 62, 35],
                 confidence: "93.9%"
             },
             "灵魂测绘师": {
@@ -152,7 +146,6 @@
                 quote: "在阈限的状态里，所有的界限都在溶解，所有的意义都在等待重新灌注。",
                 books: ["《仪式过程》", "《象征之林》"],
                 keywords: ["阈限时空", "仪式重生", "神圣时间"],
-                traits: [38, 62, 45, 98],
                 confidence: "95.2%"
             },
             "社会诊断师": {
@@ -171,7 +164,6 @@
                 quote: "趣味不是天赋，它是阶层为了区分彼此而制造出来的最深刻的武器。",
                 books: ["《区分》", "《实践感》"],
                 keywords: ["象征资本", "趣味分层", "场域斗争"],
-                traits: [75, 88, 92, 65],
                 confidence: "98.4%"
             },
             "批判理论家": {
@@ -190,16 +182,15 @@
                 quote: "永远不要怀疑一小群有思想、有责任感的公民能改变世界。事实上，这是唯一的改变方式。",
                 books: ["《萨摩亚人的成年》", "《代沟》"],
                 keywords: ["文化建构", "权力反思", "反向审视"],
-                traits: [52, 75, 82, 98],
                 confidence: "96.7%"
             },
             "微观互动专家": {
                 identity: "微观互动专家",
                 subtitle: "—— 社交剧场的顶级导演 ——",
                 archetypeIdentity: "“在你眼里，宏大理论不如电梯里的一场尴尬沉默来得真实。面子是社会借给你的，你必须通过精准表演来维护它。”",
-                writingProtocol: "拟剧论叙事。关注眼神、面子、社交距离。要在文字里捕捉互动的、脆弱而精妙的平衡感。描写每个表情背后的‘后台管理’。文字应该是生动的、带有剧场感的，让读者看到每个日常瞬间的博弈。",
+                writingProtocol: "拟剧论叙事。关注眼神、面子、社交距离。要在文字里捕捉互动的脆弱平衡感。描写每个表情背后的‘后台管理’。文字应该是生动的、带有剧场感的，让读者看到每个日常瞬间的博弈。",
                 clinicalSymptom: "表演型疲惫与人际敏感。因为太清楚大家都在‘装’，你可能会在某个瞬间感到极度的心累，渴望逃离所有的舞台。你活在自己对他人的投射中，时刻警惕着形象的崩解，这让你难以获得松弛。",
-                existentialCounsel: "接纳偶尔的‘穿帮’。真实往往诞生在失误和拙劣的表演中。去拥抱那个笨拙、真实、不需要管理形象的、血肉之躯的自我。你会发现，当你不再努力演好那个‘自我’时，你才能获得真正的自由实感。 ",
+                existentialCounsel: "接纳偶尔的‘穿帮’。真实往往诞生在失误和拙劣的表演中。去拥抱那个笨拙、真实、不需要管理形象的、血肉之躯的自我。你会发现，当你不再努力演好那个‘自我’时，你才能获得真正的自由实感。",
                 internalLogic: "你的精神内核是‘面子的动态维护’。你认为社交就是一场永不停歇的即兴剧。真实并不在内心深处，而在于互动的那一刻所呈现出的策略。你相信面子是维持文明社会运转的微小齿轮。",
                 manifestation: "‘显微镜’式的观察力。你对他人的‘人设管理’有着天才般的嗅觉。能精准地根据场域切换自己的面具。极其擅长捕捉社交中的‘表演感’，观察每个人如何维护前台形象，你是天生的互动导演。",
                 shadowTitle: "社交过载导致的自我丧失",
@@ -209,7 +200,6 @@
                 quote: "人生不过是一场精心排练的剧场表演，每个人都在努力演好那个名为‘自我’的角色。",
                 books: ["《日常生活中的自我呈现》", "《互动仪式》"],
                 keywords: ["拟剧论", "印象管理", "微观秩序"],
-                traits: [48, 99, 75, 52],
                 confidence: "94.3%"
             },
             "人类学织梦师": {
@@ -217,7 +207,7 @@
                 subtitle: "—— 情感叙事的诗意捕捉者 ——",
                 archetypeIdentity: "“你不相信冰冷的数据。你相信那些未曾被言说的哭泣与欢笑中，藏着文明最底层的底色。你是那抹温热的慈悲。”",
                 writingProtocol: "诗性叙事。关注国民性格、文化格调。要在文字里建造一个‘房间’，让叙事像液体渗透感官。重塑碎片化的现实。你的文字应该带有某种神话色彩，将平庸的个人史升华为永恒的文化模式。",
-                clinicalSymptom: "情感过载与主观盲目。因为太容易共情，你可能会背负他人的痛苦前行，甚至在这个过程中迷失了自己的坐标。你倾向于美化你热爱的事物，而对那些丑陋的权力逻辑视而不见。你太害怕破坏叙事泡泡。 ",
+                clinicalSymptom: "情感过载与主观盲目。因为太容易共情，你可能会背负他人的痛苦前行，甚至在这个过程中迷失了自己的坐标。你倾向于美化你热爱的事物，而对那些丑陋的权力博弈视而不见。你太害怕破坏叙事泡泡。",
                 existentialCounsel: "学会做‘客观的诗人’。慈悲需要力量支撑，故事需要结构依托。允许自己在共情之余，保留一双冷眼旁观的眼睛。只有完整认识了黑暗，你所歌颂的光明才具有分量。守住心跳漏掉一拍的时刻。",
                 internalLogic: "你的精神内核是‘文化格调的共振’。你相信美学与道德在文明深处是统一的。理解一个民族，首先要理解他们眼中那个‘理所应当’的情感世界。你通过编织梦想，让冰冷的世界重回温热。",
                 manifestation: "温柔、包容，擅长讲述神话色彩的故事。你眼里的众生不再是符号或数据，而是鲜活且流动的诗篇。你极其敏感，拥有极强的通感。存在本身轻盈但充满了感官的张力，那是情感在低声吟唱。",
@@ -228,12 +218,11 @@
                 quote: "人类学的工作，不仅仅是去记录文化，更是去发现每一个灵魂独特的颜色。",
                 books: ["《菊与刀》", "《文化模式》"],
                 keywords: ["文化格调", "情感叙事", "诗性人类学"],
-                traits: [62, 55, 42, 98],
                 confidence: "95.9%"
             }
         };
 
-        // --- 30 道深度题目（带人类学深描逻辑） ---
+        // --- 30 道深度题目 ---
         const questions = [
             { id: 1, question: "面对‘生’西红柿和‘熟’番茄汤，你脑海中冒出的第一个念头是：", options: [
                 { text: "火的力量：人类从荒野走向文明的那道分界线", theory: "生与熟不仅是温度的差异，更是大脑中‘自然’与‘文化’的分水岭。你是结构化的分类者。", score: "结构主义大师" },
@@ -303,14 +292,14 @@
                 { text: "它是现代人对纯粹亲密的某种浪漫回归", theory: "伴侣物种成了寄托最后一点‘温柔慈悲’的避难所。你是情感的织梦师。", score: "人类学织梦师" },
                 { text: "孤独社会的代偿逻辑，宠物接管了邻里关系", theory: "原子化社会的代偿逻辑。这反映了社会组织结构的某种崩坏。你是社会医生。", score: "社会诊断师" },
                 { text: "通过命名将野性招安，它们成了文化附件", theory: "拟人化实际上是人类中心主义的体现。命名即征服。", score: "符号解读专家" },
-                { text: "‘人类独尊’的层级正在松动，寻找新连接", theory: "你在寻找打破物种高低差的平等存在形态。你是传统的颠覆者。", score: "批判理论家" }
+                { text: "‘人类独尊’的层级正在松动，在寻找新连接", theory: "你在寻找打破物种高低差的平等存在形态。你是传统的颠覆者。", score: "批判理论家" }
             ]},
             { id: 11, question: "深夜的城市噪音对你而言，第一直觉是：", options: [
                 { text: "工业文明的‘呼吸’，它是系统运行的信号", theory: "你习惯了从机器节奏中获取秩序感。你是数字文明的导游。", score: "赛博人类学家" },
                 { text: "资本运作的暴力节拍，强行切碎自然时钟", theory: "痛恨这种对生物节律的强占。你是底层正义的辩护者。", score: "批判理论家" },
                 { text: "地脉的宁静被撕裂，感到了土地的呻吟", theory: "钢铁巨兽是地表不和谐的异物。你是自然的守望者。", score: "地脉观察者" },
                 { text: "这种无序打破了夜晚的逻辑，让我感到焦虑", theory: "无法忍受由于失控产生的逻辑裂缝。你追求结构的严密性。", score: "结构主义大师" },
-                { text: "它让每一个失眠的灵魂听到了孤独的频率", theory: "总是能从物理振动中听出情感的底噪。你是灵魂的记录者。", score: "人类学织梦师" }
+                { text: "它让每一个失眠的灵魂听到了孤独的频率", theory: "总是能从物理振动中听出情感的底噪. 你是灵魂的记录者。", score: "人类学织梦师" }
             ]},
             { id: 12, question: "当一个秘密必须被说出来，你的理由是：", options: [
                 { text: "它是交换信任的筹码，建立了临时共谋场", theory: "秘密是社交资本。有选择分享是为了场域划分。你是理性的博弈者。", score: "社会诊断师" },
@@ -321,7 +310,7 @@
             ]},
             { id: 13, question: "导航软件带给你的感觉，更倾向于：", options: [
                 { text: "空间感退化，我丧失了见山见水的‘大地直觉’", theory: "警惕依赖中介导致的感悟力退化。你认为自己失去了对地脉的掌控。", score: "地脉观察者" },
-                { text: "身体变成了地理信息系统里的一个末梢节点", theory: "双脚只是在验证算法给出的路径逻辑。你是后人类主义的信徒。", score: "赛博人类学家" },
+                { text: "身体变成了地理信息系统里的一个末梢节点", theory: "双脚在验证算法给出的路径逻辑。你是后人类主义的信徒。", score: "赛博人类学家" },
                 { text: "导航抹杀了弯路，也抹杀了美丽的意外和故事", theory: "去脉络化空间。杀死了路上本该有的地方性知识。你是深度的解读师。", score: "符号解读专家" },
                 { text: "这是知识对地表的最终占领，一切被逻辑化了", theory: "认可对环境的结构化征服。赞赏理性的秩序。你是规则的分类员。", score: "结构主义大师" },
                 { text: "在光标的跳动中，感到了现代人无根漂浮的焦虑", theory: "读出了技术效率背后，丧失故乡感的情感虚空。你是温情的诗人。", score: "人类学织梦师" }
@@ -369,11 +358,11 @@
                 { text: "看到了正在消失的‘邻里情感’在这一刻被重连", theory: "这一刻城市不再冷漠。你是温热情感的织梦师。", score: "人类学织梦师" }
             ]},
             { id: 20, question: "如果你一生最后留下一件礼物，你希望是：", options: [
-                { text: "曾深深生活过的一处地脉印记，回归土地", theory: "肉身化作泥土。印记留在土地。这才是生命馈赠。", score: "地脉观察者" },
-                { text: "被后世反复解读的意义碎片，成为文化大厦的砖", theory: "你编织的意义网会被后人继承。你是意义的解码师。", score: "符号解读专家" },
-                { text: "曾拥有过、承载了个人传记和指纹的传家旧物", theory: "物质延续才是社会生命的复活。你是生活考古家。", score: "生活考古学家" },
+                { text: "曾深深生活过的一处地脉印记，回归土地", theory: "肉身化作泥土. 印记留在土地. 这才是生命馈赠。", score: "地脉观察者" },
+                { text: "被后世反复解读的意义碎片，成为文化大厦的砖", theory: "你编织的意义网会被后人继承. 你活在意义的编织中。", score: "符号解读专家" },
+                { text: "承载了大量个人传记和指纹的传家旧物", theory: "物质延续才是社会生命的复活。你是生活考古家。", score: "生活考古学家" },
                 { text: "一组完美的数字化档案，供未来的算法反复运算", theory: "你渴望以算法的形式在云端永生。你是未来的侦察兵。", score: "赛博人类学家" },
-                { text: "一段曾经温暖过他人、代代相传的感性故事", theory: "生命是情感的接力。故事是遗嘱。你是灵魂诗人。", score: "人类学织梦师" }
+                { text: "一段曾经温暖过他人、代代相传的感性故事", theory: "生命是情感的接力. 故事是唯一的遗产。", score: "人类学织梦师" }
             ]},
             { id: 21, question: "关于‘金钱’，你的态度更偏向：", options: [
                 { text: "它是剥削的化身，是文明穿在权力身上的外壳", theory: "你不仅看它交换了什么，更看它隐藏了什么。你是批判者。", score: "批判理论家" },
@@ -386,15 +375,15 @@
                 { text: "这种刻意的‘高级感’，是阶层的过滤网", theory: "通过视觉门槛，将资本额度不同的人分开。你是社会医生。", score: "社会诊断师" },
                 { text: "这里像是个神圣博物馆，每件衣服都是一个图腾", theory: "消费已经仪式化。你在此崇拜身份。你是灵魂分析者。", score: "灵魂测绘师" },
                 { text: "这些精致掩盖了它在生产端可能的劳动不公", theory: "关注生产关系。你拒绝被光鲜表面催眠。你是质询者。", score: "批判理论家" },
-                { text: "这种逻辑是为了让大脑更快速地识别符号标签", theory: "精简化服务于传播效率。你读出了编码焦虑。你是分类员。", score: "结构主义大师" },
+                { text: "这种逻辑是为了让大脑更快速地识别符号标签", theory: "精简化服务于传播效率. 你读出了符号的控制力。", score: "结构主义大师" },
                 { text: "感到了数字生活的冷感，这里缺乏土地温热", theory: "由于根植自然直觉。你排斥‘去背景’。你是守望者。", score: "地脉观察者" }
             ]},
             { id: 23, question: "你理想的居住空间应该是：", options: [
-                { text: "充满土地记忆和自然触感，像是个温固的巢穴", theory: "根植地脉。渴望在木材中寻找本源。你是溯源者。", score: "地脉观察者" },
+                { text: "充满土地记忆和自然触感，像是个温固的巢穴", theory: "根植地脉. 渴望在木材中寻找本源. 你是溯源者。", score: "地脉观察者" },
                 { text: "极简数字站，物理空间完全服从于效率和网络", theory: "空间应服从于数字人格。你是未来时代的共生侦察兵。", score: "赛博人类学家" },
-                { text: "充满了各种生活仪式感，每一道门槛都是转换开关", theory: "通过布局实现日常‘神圣化’。你是阈限的穿梭者。", score: "灵魂测绘师" },
-                { text: "收集了许多有故事的旧物，构成了物质传记馆", theory: "房子是博物馆。旧物是情感导体。你是考古学家。", score: "生活考古学家" },
-                { text: "能精准区分公私领域，每个格子都有不容冒犯功能", theory: "追求分类秩序。分类清晰才有安宁。你是结构大师。", score: "结构主义大师" }
+                { text: "充满了各种生活仪式感，每一道门槛都是转换开关", theory: "通过布局实现日常‘神圣化’. 你是阈限的穿梭者。", score: "灵魂测绘师" },
+                { text: "收集了许多有故事的旧物，构成了物质传记馆", theory: "房子是博物馆. 旧物是情感导体. 你是考古学家。", score: "生活考古学家" },
+                { text: "能精准区分公私领域，每个格子都有不容冒犯功能", theory: "追求分类秩序. 分类清晰才有安宁. 你是结构大师。", score: "结构主义大师" }
             ]},
             { id: 24, question: "关于‘发朋友圈’，你的深层心理倾向于是：", options: [
                 { text: "我在为我的社会生命史录入一段数字化档案", theory: "记录一段正在消亡的生活现场。你是生活的考古家。", score: "生活考古学家" },
@@ -405,13 +394,13 @@
             ]},
             { id: 25, question: "穿上一件剪裁考究的西装，你感觉：", options: [
                 { text: "这是我入驻专业场域、获得话语权的战袍", theory: "衣着是进入特定场域的资本。你是理性的博弈者。", score: "社会诊断师" },
-                { text: "这是我管理精英人设最核心的‘剧照道具’", theory: "你认为服装是维护‘前台’的必要面具。你是互动导演。", score: "微观互动专家" },
+                { text: "这是我管理精英人设最核心的‘剧照道具’", theory: "你认为服装是维护‘前台’的必要面具. 你是互动导演。", score: "微观互动专家" },
                 { text: "这是一套把肉身标准化、网格化的高效率外壳", theory: "服装是结构对肉体的二次整合。你是分类大师。", score: "结构主义大师" },
                 { text: "我更关心这块面料在土地上曾是哪一株植物", theory: "你试图穿透LOGO看到物的原始根系。你是地脉溯源者。", score: "地脉观察者" },
-                { text: "这是一种向某种理想格调投诚的感官仪式", theory: "由于重视情感。你追求的是那份自洽感。你是织梦师。", score: "人类学织梦师" }
+                { text: "这是一种向某种理想格调投诚的感官仪式", theory: "由于重视情感. 你追求的是那份自洽感. 你是织梦师。", score: "人类学织梦师" }
             ]},
             { id: 26, question: "你在看纪录片时，最被触动的是：", options: [
-                { text: "他们编织篮篓时那种灵巧质朴的手感", theory: "你在最原始的物质互动中找到了镜像。你是溯源者。", score: "地脉观察者" },
+                { text: "他们编织篮篓时那种灵巧质朴的手感", theory: "你在最原始的物质互动中找到了镜像. 你是溯源者。", score: "地脉观察者" },
                 { text: "面对生老病死时，那种神圣庄严的仪式感", theory: "你认为仪式赋予生命以不朽意义。你是测绘师。", score: "灵魂测绘师" },
                 { text: "交流时那种微妙的眼神、等级分明的礼仪", theory: "你捕捉到了秩序最微小的齿轮。你是互动专家。", score: "微观互动专家" },
                 { text: "他们对世界那套独特的、逻辑自洽的命名方式", theory: "理解了分类就理解了大脑。你是结构的分类员。", score: "结构主义大师" },
@@ -420,34 +409,34 @@
             { id: 27, question: "关于‘养老’这件事，你的直觉反应是：", options: [
                 { text: "这是亲属网络中最后一道关于责任的分类线", theory: "养老是维持家族闭环逻辑的核心功能。你是结构派。", score: "结构主义大师" },
                 { text: "这是关于离去的一场漫长且庄严的转换仪式", theory: "将衰老视为最终阈限的前奏。你是时空的穿梭者。", score: "灵魂测绘师" },
-                { text: "社会资本耗尽后，个体面临被系统剥夺的焦虑", theory: "看到了产出能力丧失后的权力滑坡。你是社会医生。", score: "社会诊断师" },
-                { text: "怀念那种三代同堂、根系交织的土地生活", theory: "由于迷恋连结。你认为反哺最温热。你是溯源者。", score: "地脉观察者" },
-                { text: "它是对不体面肉身的一种强制性物理隔离", theory: "批判社会通过分类来隐藏‘虚弱’。你是质询者。", score: "批判理论家" }
+                { text: "社会资本耗尽后，个体面临被系统剥夺的焦虑", theory: "看到了产出能力丧失后的权力滑坡. 你是社会医生。", score: "社会诊断师" },
+                { text: "怀念那种三代同堂、根系交织的土地生活", theory: "由于迷恋连结. 你认为反哺最温热. 你是溯源者。", score: "地脉观察者" },
+                { text: "它是对不体面肉身的一种强制性物理隔离", theory: "批判社会通过分类来隐藏‘虚弱’. 你是质询者。", score: "批判理论家" }
             ]},
             { id: 28, question: "对于深夜‘熬夜’，你内心独白更接近：", options: [
                 { text: "这是我从被规训的时间里偷回来的神圣领地", theory: "夜晚是世俗规则失效的阈限空间。你是灵魂测绘师。", score: "灵魂测绘师" },
                 { text: "由于生命高度数字化，我的时钟已服从电信号", theory: "肉身与昼夜彻底割裂。你是数字边界的共生兵。", score: "赛博人类学家" },
                 { text: "一种对抗工厂化、标准化时间表的微小反抗", theory: "你拒绝成为社会机器上的同步齿轮。你是批判者。", score: "批判理论家" },
-                { text: "在深夜孤独中，能感受到最纯粹的叙事共振", theory: "认为深夜是收集灵魂私语的最佳时段。你是诗人。", score: "人类学织梦师" },
-                { text: "这是大家卸下面具后最真实的‘后台’剧场", theory: "深夜社交剧本变得更加感性私密。你是互动专家。", score: "微观互动专家" }
+                { text: "在深夜孤独中，能感受到最纯粹的叙事共振", theory: "认为深夜是收集灵魂私语的最佳时段. 你是诗人。", score: "人类学织梦师" },
+                { text: "这是大家卸下面具后最真实的‘后台’剧场", theory: "深夜社交剧本变得更加感性私密. 你是互动专家。", score: "微观互动专家" }
             ]},
             { id: 29, question: "看到最繁华路口的广告，你的第一感觉是：", options: [
-                { text: "处于流量池中，每个人都只是一个信息单位", theory: "看到了个体被数据化的真相。你是赛博向导。", score: "赛博人类学家" },
-                { text: "处于全景监狱，广告牌在窥视、引诱我的欲望", theory: "批判权力对视觉的强占。你是权力的剖析者。", score: "批判理论家" },
-                { text: "怀念那混合了汗水的、真实的市集交易触感", theory: "对由于过度标准产生的冷感表示排斥。你是地脉守护者。", score: "地脉观察者" },
-                { text: "一场群演聚会，大家在红绿灯间切换表情", theory: "观察都市人如何管理自己的职业面具。你是互动导演。", score: "微观互动专家" },
-                { text: "处于漂浮丛林，每个人都在寻找精神部落", theory: "读出了繁华背后关于归属的虚空。你是人类学织梦师。", score: "人类学织梦师" }
+                { text: "处于流量池中，每个人都只是一个信息单位", theory: "看到了个体被数据化的真相. 你是赛博向导。", score: "赛博人类学家" },
+                { text: "处于全景监狱，广告牌在窥视、引诱我的欲望", theory: "批判权力对视觉的强占. 你是权力的剖析者。", score: "批判理论家" },
+                { text: "怀念那混合了汗水的、真实的市集交易触感", theory: "对由于过度标准产生的冷感表示排斥. 你是地脉守护者。", score: "地脉观察者" },
+                { text: "一场群演聚会，大家在红绿灯间切换表情", theory: "观察都市人如何管理自己的职业面具. 你是互动导演。", score: "微观互动专家" },
+                { text: "处于漂浮丛林，每个人都在寻找精神部落", theory: "读出了繁华背后关于归属的虚空. 你是人类学织梦师。", score: "人类学织梦师" }
             ]},
             { id: 30, question: "走入人群，你对自己身份的最后确认是：", options: [
-                { text: "一个冷静扫描规则、致力于看穿世界的观察者", theory: "看透了那些体面。规则在你眼里是透明游戏。你是诊断师。", score: "社会诊断师" },
-                { text: "一个捕捉灵魂颜色、报以温热慈悲的诗人", theory: "人类学真谛是同情。众生是鲜活的诗。你是织梦师。", score: "人类学织梦师" },
-                { text: "一个记录文明报告、寻找这个世界隐喻的侦察兵", theory: "世界变陌生了。细节都是一份待解的报告。你是解码师。", score: "符号解读专家" },
-                { text: "一个穿行阈限空间、不断重构自我的旅者", theory: "日常即仪式。你在转化中前行。你是灵魂分析家。", score: "灵魂测绘师" },
-                { text: "一个不再把世界视作理所应当、试图打破囚笼的解构者", theory: "觉醒已经完成。从此。你不再被常识囚禁。你是批判者。", score: "批判理论家" }
+                { text: "一个冷静扫描规则、致力于看穿世界的观察者", theory: "现在你看透了那些规矩. 规则在你眼里是透明游戏。", score: "社会诊断师" },
+                { text: "一个捕捉灵魂颜色、报以温热慈悲的诗人", theory: "人类学真谛是同情. 众生是鲜活的诗. 你是织梦师。", score: "人类学织梦师" },
+                { text: "一个记录文明报告、寻找这个世界隐喻的侦察兵", theory: "世界变陌生了. 细节都是一份待解的报告. 你是解码师。", score: "符号解读专家" },
+                { text: "一个穿行阈限空间、不断重构自我的旅者", theory: "觉醒发生. 日常即仪式. 你是灵魂分析家。", score: "灵魂测绘师" },
+                { text: "一个不再把世界视作理所应当、试图打破囚笼的解构者", theory: "觉醒完成. 从此. 你不再被常识囚禁. 你是批判者。", score: "批判理论家" }
             ]}
         ];
 
-        // --- 修复后的 UI 组件 ---
+        // --- UI 组件 ---
         const Icon = ({ name, size = 20, className = "" }) => {
             const containerRef = useRef(null);
             useEffect(() => {
@@ -529,7 +518,7 @@
                 <div className="min-h-screen flex flex-col items-center justify-center relative selection:bg-[#1a1a1a] selection:text-[#fdfcf9]">
                     <div className="fixed inset-0 pointer-events-none opacity-[0.05] mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
                     
-                    <div className={`w-full max-w-5xl min-h-screen md:min-h-[92vh] p-6 md:p-12 flex flex-col relative z-10 bg-[#fdfcf9] shadow-[0_15px_60px_rgba(0,0,0,0.02)] border border-black/[0.03] md:my-6 transition-all duration-700 overflow-hidden`}>
+                    <div className={`w-full max-w-5xl min-h-screen md:min-h-[92vh] p-8 md:p-12 flex flex-col relative z-10 bg-[#fdfcf9] shadow-[0_15px_60px_rgba(0,0,0,0.02)] border border-black/[0.03] md:my-6 transition-all duration-700 overflow-hidden`}>
                         
                         {step === 'intro' && (
                             <div className="flex-1 flex flex-col justify-between animate-in text-left">
@@ -599,29 +588,7 @@
                                    </div>
                                 </div>
 
-                                {/* 高精度指标卡片 */}
-                                <div className="bg-white p-10 md:p-14 rounded-[2.5rem] card-shadow border border-black/[0.02] mb-12 text-center animate-in">
-                                   <div className="flex flex-wrap justify-between items-end gap-10 md:gap-0 px-4">
-                                        <div className="flex-1 min-w-[100px] border-l border-black/10 pl-6 text-left">
-                                            <div className="large-stat mb-1">{persona.traits[0]}</div>
-                                            <div className="text-[9px] font-sans font-black uppercase tracking-widest opacity-30">直觉强度 / INTUITION</div>
-                                        </div>
-                                        <div className="flex-1 min-w-[100px] border-l border-black/10 pl-6 text-left">
-                                            <div className="large-stat mb-1">{persona.traits[1]}</div>
-                                            <div className="text-[9px] font-sans font-black uppercase tracking-widest opacity-30">洞察深度 / INSIGHT</div>
-                                        </div>
-                                        <div className="flex-1 min-w-[100px] border-l border-black/10 pl-6 text-left">
-                                            <div className="large-stat mb-1">{persona.traits[2]}</div>
-                                            <div className="text-[9px] font-sans font-black uppercase tracking-widest opacity-30">逻辑映射 / LOGIC</div>
-                                        </div>
-                                        <div className="flex-1 min-w-[100px] border-l border-black/10 pl-6 text-left">
-                                            <div className="large-stat mb-1">{persona.traits[3]}</div>
-                                            <div className="text-[9px] font-sans font-black uppercase tracking-widest opacity-30">执行效力 / PERFORMANCE</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 精神解剖报告 (复刻截屏 16.45.25 风格) */}
+                                {/* 精神解剖报告卡片 */}
                                 <div className="bg-white p-12 md:p-20 rounded-[3rem] card-shadow border border-black/[0.02] mb-12 animate-in" style={{animationDelay: '0.2s'}}>
                                     <div className="text-[10px] font-sans font-black tracking-widest text-black/20 uppercase mb-12">精神解剖报告 / THE SELF</div>
                                     
@@ -646,7 +613,7 @@
                                     </div>
                                 </div>
 
-                                {/* 灵魂分析 (文字体量大扩容) */}
+                                {/* 灵魂分析卡片 */}
                                 <div className="bg-white p-12 md:p-20 rounded-[3rem] card-shadow border border-black/[0.02] mb-12 animate-in" style={{animationDelay: '0.4s'}}>
                                     <div className="text-[10px] font-sans font-black tracking-widest text-black/20 uppercase mb-12">灵魂分析 / THE SOUL</div>
                                     
@@ -675,15 +642,15 @@
                                     </div>
                                 </div>
 
-                                {/* 焦虑与阴影 (文字量重点补全) */}
+                                {/* 核心焦虑与潜在阴影卡片 */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-20">
                                     <div className="bg-white p-14 rounded-[3rem] card-shadow border border-black/[0.02] animate-in" style={{animationDelay: '0.6s'}}>
-                                        <div className="text-[11px] font-black uppercase tracking-[0.4em] text-red-arche mb-10 border-b border-red-arche/10 pb-4">核心焦虑 / ANXIETY</div>
+                                        <div className="text-red-arche font-black uppercase tracking-[0.4em] mb-10 border-b border-red-arche/10 pb-4">核心焦虑 / ANXIETY</div>
                                         <p className="text-3xl leading-[1.8] text-red-arche font-serif italic mb-8 font-black">{persona.shadowTitle}</p>
                                         <p className="text-xl leading-[2.2] text-red-arche/70 font-serif italic">{persona.shadowText}</p>
                                     </div>
                                     <div className="bg-white p-14 rounded-[3rem] card-shadow border border-black/[0.02] animate-in" style={{animationDelay: '0.7s'}}>
-                                        <div className="text-[11px] font-black uppercase tracking-[0.4em] text-black/30 mb-10 border-b border-black/5 pb-4">潜在阴影 / SHADOW</div>
+                                        <div className="text-black font-black uppercase tracking-[0.4em] opacity-30 mb-10 border-b border-black/5 pb-4">潜在阴影 / SHADOW</div>
                                         <p className="text-xl leading-[2.4] text-black/60 font-serif italic mb-12">{persona.shadow}</p>
                                         <div className="space-y-6">
                                             <div className="text-[10px] font-black text-black/20 uppercase tracking-widest">思想档案 / BIBLIOGRAPHY</div>
