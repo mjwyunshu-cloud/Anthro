@@ -83,7 +83,7 @@
             },
             "结构主义大师": {
                 identity: "逻辑的分类员",
-                desc: "你拥有极佳的抽象概括能力，世界在你眼里是一个由各种公式和逻辑构成的巨型天平。你痴迷于寻找万物背后的‘通用语法’：生与熟、净与秽、男与女、家与外……你认为人类思维中存在着某种放之四海而皆准的底层架构。",
+                desc: "你拥有极佳的抽象概括能力，世界在你眼里是一个由各种公式 and 逻辑构成的巨型天平。你痴迷于寻找万物背后的‘通用语法’：生与熟、净与秽、男与女、家与外……你认为人类思维中存在着某种放之四海而皆准的底层架构。",
                 analysis: "你是典型的‘结构主义者’。你相信个体的行为只是表象，真正的秘密隐藏在那些支撑社会运转的‘深层结构’之中。你是一个冷峻的分类学家。",
                 selfReport: "把故事写成智力游戏。去写根本不存在的书评，去伪造失落的文明。文字不应提供安慰，而应通过逻辑编织出深邃的迷宫。",
                 shadow: "害怕无法分类的‘混乱’。当某种现象超出了你的二元对立框架，你会感到强烈的焦虑和否定。",
@@ -327,15 +327,25 @@
 
         // --- 视觉辅助组件 ---
 
-        // Lucide 图标包装器
+        // 修复版本的图标组件：使用 ref 手动控制 DOM，避免 React removeChild 错误
         const Icon = ({ name, size = 20, className = "" }) => {
-            const iconRef = useRef(null);
+            const containerRef = useRef(null);
+            
             useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
+                if (window.lucide && containerRef.current) {
+                    // 清空容器并注入新 i 标签，让 Lucide 渲染
+                    containerRef.current.innerHTML = `<i data-lucide="${name}"></i>`;
+                    window.lucide.createIcons({
+                        attrs: {
+                            class: className,
+                            style: `width: ${size}px; height: ${size}px;`
+                        },
+                        root: containerRef.current
+                    });
                 }
-            }, [name]);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+            }, [name, size, className]);
+
+            return <span ref={containerRef} className="inline-flex items-center justify-center"></span>;
         };
 
         const RadarChart = ({ data }) => {
@@ -390,7 +400,7 @@
             return (
                 <div className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full opacity-90 py-6 gap-3 md:gap-0 overflow-x-auto no-scrollbar">
                     {icons.map((icon, i) => (
-                        <div key={i} className="flex flex-col items-center flex-shrink-0 group py-4">
+                        <div key={`aux-icon-${i}`} className="flex flex-col items-center flex-shrink-0 group py-4">
                             <div className="bg-[#1a1a1a] text-[#fdfcf9] text-[6px] px-1.5 py-0.5 mb-2 scale-90 font-sans tracking-tighter opacity-80">{icon.label}</div>
                             <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-[#1a1a1a] group-hover:scale-110 transition-transform">
                                 <svg viewBox="0 0 100 100" className={`w-10 h-10 md:w-14 md:h-14 ${icon.isStroke ? 'fill-none stroke-current' : 'fill-current'}`} strokeWidth={icon.sw}><path d={icon.path} strokeLinecap="round" /></svg>
@@ -442,10 +452,12 @@
                 if (answers.length === 0) return "地脉观察者";
                 const counts = {};
                 answers.forEach((qSel, qIdx) => {
-                    qSel.forEach(optIdx => {
-                        const scoreType = questions[qIdx]?.options[optIdx]?.score;
-                        if (scoreType) counts[scoreType] = (counts[scoreType] || 0) + 1;
-                    });
+                    if (qSel) {
+                        qSel.forEach(optIdx => {
+                            const scoreType = questions[qIdx]?.options[optIdx]?.score;
+                            if (scoreType) counts[scoreType] = (counts[scoreType] || 0) + 1;
+                        });
+                    }
                 });
                 const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
                 return sorted.length > 0 ? sorted[0][0] : "地脉观察者";
@@ -460,7 +472,7 @@
                     <div className={`w-full max-w-5xl min-h-screen md:min-h-[92vh] p-8 md:p-16 flex flex-col relative z-10 bg-[#fdfcf9] shadow-[0_15px_60px_rgba(0,0,0,0.03)] border border-black/[0.03] md:my-6 transition-all duration-700 overflow-hidden`}>
                         
                         {step === 'intro' && (
-                            <div className="flex-1 flex flex-col justify-between animate-in fade-in duration-1000 relative">
+                            <div className="flex-1 flex flex-col justify-between animate-in fade-in duration-1000 relative text-left">
                                 <div className="flex flex-col md:flex-row justify-between text-[8px] md:text-[10px] tracking-[0.35em] text-[#1a1a1a]/50 uppercase font-sans border-b border-black/[0.08] pb-6">
                                     <div className="font-bold">MET: THICK DESCRIPTION / 深描</div>
                                     <div className="md:text-right mt-2 md:mt-0 font-bold uppercase tracking-widest opacity-40 text-left">Cultural Fieldwork Archive</div>
@@ -484,7 +496,7 @@
                         )}
 
                         {step === 'quiz' && (
-                            <div className="flex-1 flex flex-col animate-in fade-in duration-700">
+                            <div className="flex-1 flex flex-col animate-in fade-in duration-700 text-left">
                                 <div className="flex justify-between items-center border-b border-black/[0.1] pb-6 mb-12">
                                     <button onClick={() => (currentQ > 0 ? setCurrentQ(currentQ - 1) : setStep('intro'))} className="text-[10px] md:text-[11px] font-sans tracking-[0.4em] text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-colors uppercase font-black">← UNDO</button>
                                     <div className="text-[10px] md:text-[11px] tracking-[0.7em] font-sans text-[#1a1a1a]/30 uppercase font-black font-bold">LOG_0{currentQ + 1}</div>
@@ -494,20 +506,30 @@
                                         <div className="text-[11px] md:text-[12px] tracking-[0.6em] text-[#1a1a1a]/40 uppercase font-sans border-l-[3px] border-black/10 pl-8 font-black text-left">Field_Query</div>
                                         <h2 className="text-2xl md:text-4xl font-light leading-[1.6] text-[#1a1a1a] tracking-tighter">{questions[currentQ]?.question}</h2>
                                         {questions[currentQ]?.explanation && <div className="bg-black/[0.02] p-6 border-l-2 border-black/20 italic text-left"><p className="text-[12px] leading-relaxed text-stone-500 font-serif">注脚: {questions[currentQ].explanation}</p></div>}
-                                        <div className="flex items-center gap-3 text-stone-400"><Icon name="book-open" size={14} /><p className="text-[9px] uppercase tracking-widest italic font-sans font-bold">点击文字读档解释，点击方框最终勾选</p></div>
+                                        <div className="flex items-center gap-3 text-stone-400">
+                                            <Icon name="book-open" size={14} />
+                                            <p className="text-[9px] uppercase tracking-widest italic font-sans font-bold">点击文字读档解释，点击方框最终勾选</p>
+                                        </div>
                                     </div>
                                     <div className="w-full md:w-7/12 space-y-4">
                                         {questions[currentQ]?.options.map((option, idx) => (
-                                            <div key={idx} className="group">
-                                                <button onClick={() => setViewingIndex(viewingIndex === idx ? null : idx)} className={`w-full text-left p-6 transition-all duration-500 border-l-[4px] flex items-start gap-6 ${viewingIndex === idx ? 'border-black bg-black/[0.015]' : 'border-transparent bg-black/[0.005]'}`}>
-                                                    <div onClick={(e) => toggleSelection(idx, e)} className={`w-6 h-6 border border-black flex items-center justify-center shrink-0 transition-colors ${tempSelection.includes(idx) ? 'bg-black text-[#fdfcf9]' : 'bg-white'}`}>
+                                            <div key={`opt-${currentQ}-${idx}`} className="group">
+                                                <div className={`w-full text-left p-6 transition-all duration-500 border-l-[4px] flex items-start gap-6 ${viewingIndex === idx ? 'border-black bg-black/[0.015]' : 'border-transparent bg-black/[0.005]'}`}>
+                                                    <div 
+                                                        onClick={(e) => toggleSelection(idx, e)} 
+                                                        className={`w-6 h-6 border border-black flex items-center justify-center shrink-0 transition-colors cursor-pointer ${tempSelection.includes(idx) ? 'bg-black text-[#fdfcf9]' : 'bg-white'}`}
+                                                    >
                                                         {tempSelection.includes(idx) && <Icon name="check" size={16} />}
                                                     </div>
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 cursor-pointer" onClick={() => setViewingIndex(viewingIndex === idx ? null : idx)}>
                                                         <span className="text-sm md:text-xl leading-relaxed font-medium block">{option.text}</span>
-                                                        {viewingIndex === idx && <div className="mt-4 pt-4 border-t border-black/5 animate-in slide-in-from-top-2 duration-300"><p className="text-[#1a1a1a] italic leading-[2.4] text-sm md:text-lg font-serif opacity-80">“{option.theory}”</p></div>}
+                                                        {viewingIndex === idx && (
+                                                            <div className="mt-4 pt-4 border-t border-black/5 animate-in slide-in-from-top-2 duration-300">
+                                                                <p className="text-[#1a1a1a] italic leading-[2.4] text-sm md:text-lg font-serif opacity-80">“{option.theory}”</p>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </button>
+                                                </div>
                                             </div>
                                         ))}
                                         <div className="pt-10 flex items-center justify-between">
@@ -523,7 +545,7 @@
                         )}
 
                         {step === 'result' && (
-                            <div className="flex-1 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar pb-32 pr-2 custom-scrollbar">
+                            <div className="flex-1 animate-in fade-in duration-1000 overflow-y-auto no-scrollbar pb-32 pr-2 custom-scrollbar text-left">
                                 
                                 <div className="text-center space-y-12 mb-32 pt-16">
                                     <div className="text-[10px] tracking-[1.5em] text-black/30 uppercase font-black">ARCHETYPE ANALYSIS REPORT</div>
@@ -537,8 +559,8 @@
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 border-y border-black/[0.08] py-24 mb-40">
-                                   <div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 border-y border-black/[0.08] py-24 mb-40 text-left">
+                                   <div className="text-left">
                                       <div className="text-[10px] tracking-[0.6em] text-black/30 uppercase font-black mb-12 border-l-4 border-black pl-6 text-left">叙事基因分析 / ARCHIVE</div>
                                       <StatBar label="感官灵敏" value={persona.traits[0]} />
                                       <StatBar label="理性逻辑" value={persona.traits[2]} />
@@ -551,10 +573,10 @@
                                    </div>
                                 </div>
 
-                                <div className="max-w-4xl mx-auto space-y-32 mb-48 text-center md:text-left">
-                                   <section className="space-y-12">
+                                <div className="max-w-4xl mx-auto space-y-32 mb-48 text-left">
+                                   <section className="space-y-12 text-left">
                                       <div className="bg-black text-[#fdfcf9] px-5 py-1.5 text-[9px] tracking-widest font-black uppercase inline-block">精神解读报告 / THE SELF</div>
-                                      <div className="space-y-20">
+                                      <div className="space-y-20 text-left">
                                         <div className="text-left">
                                            <div className="text-[10px] text-black/30 tracking-[0.5em] uppercase font-black mb-8">文学原型定义 / ARCHETYPE IDENTITY</div>
                                            <p className="text-2xl md:text-4xl leading-[2.2] text-black/90 font-serif italic pr-0 md:pr-12 text-left">“{persona.desc}”</p>
@@ -583,11 +605,11 @@
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-48 px-4 text-left">
                                    <div className="border border-red-900/10 p-12 space-y-10 bg-red-50/[0.04] rounded-sm shadow-sm text-left">
                                       <div className="flex justify-between items-center border-b border-red-900/10 pb-6 text-left"><span className="text-[12px] tracking-widest font-black text-red-900/40 uppercase">阴影投射 / SHADOW</span></div>
-                                      <div><div className="text-[10px] text-red-900/30 uppercase font-black mb-4 tracking-widest text-left">核心焦虑 / ANXIETY</div><p className="text-xl font-serif italic text-red-900/70 leading-relaxed text-left">“{persona.shadow}”</p></div>
+                                      <div className="text-left"><div className="text-[10px] text-red-900/30 uppercase font-black mb-4 tracking-widest text-left">核心焦虑 / ANXIETY</div><p className="text-xl font-serif italic text-red-900/70 leading-relaxed text-left">“{persona.shadow}”</p></div>
                                    </div>
                                    <div className="border border-black/[0.08] p-12 space-y-10 bg-white shadow-sm rounded-sm text-left">
                                       <div className="flex justify-between items-center border-b border-black/[0.08] pb-6 text-left"><span className="text-[12px] tracking-widest font-black text-black/40 uppercase">检视与自洽 / ACCEPTANCE</span></div>
-                                      <div><div className="text-[10px] text-black/30 uppercase font-black mb-4 tracking-widest text-left">调试情境 / SITUATION</div><p className="text-xl font-serif italic border-b border-black/10 pb-2 leading-relaxed text-left">“{persona.acceptance}”</p></div>
+                                      <div className="text-left"><div className="text-[10px] text-black/30 uppercase font-black mb-4 tracking-widest text-left">调试情境 / SITUATION</div><p className="text-xl font-serif italic border-b border-black/10 pb-2 leading-relaxed text-left">“{persona.acceptance}”</p></div>
                                    </div>
                                 </div>
 
@@ -597,10 +619,10 @@
                                         <div className="text-[10px] tracking-[0.6em] font-black text-black/30 uppercase text-left">MATCHED MENTOR / 导师匹配</div>
                                         <div className="flex items-center gap-10 text-left">
                                           <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center text-[#fdfcf9] font-black text-4xl shadow-xl">{persona.mentor[0]}</div>
-                                          <div><div className="text-2xl font-black tracking-widest leading-none mb-2 text-left">{persona.mentor}</div><div className="text-[10px] font-sans text-black/40 uppercase tracking-widest">Founding Figure</div></div>
+                                          <div className="text-left"><div className="text-2xl font-black tracking-widest leading-none mb-2 text-left">{persona.mentor}</div><div className="text-[10px] font-sans text-black/40 uppercase tracking-widest">Founding Figure</div></div>
                                         </div>
                                         <blockquote className="text-xl italic font-serif leading-[2.4] border-l-4 border-black pl-10 text-left">“{persona.quote}”</blockquote>
-                                        <div className="flex flex-wrap gap-4">{persona.keywords.map(k => <span key={k} className="text-[9px] font-black border border-black/25 px-4 py-1.5 uppercase tracking-widest bg-white shadow-sm">#{k}</span>)}</div>
+                                        <div className="flex flex-wrap gap-4 text-left">{persona.keywords.map(k => <span key={k} className="text-[9px] font-black border border-black/25 px-4 py-1.5 uppercase tracking-widest bg-white shadow-sm">#{k}</span>)}</div>
                                       </div>
                                       <div className="text-left">
                                         <div className="text-[10px] tracking-[0.6em] font-black text-black/30 uppercase mb-12 text-left">TENSION SPECTRA / 认知光谱</div>
@@ -613,12 +635,12 @@
 
                                 <div className="max-w-4xl mx-auto space-y-16 mb-48 px-4 text-left">
                                    <div className="text-center font-sans"><span className="text-[12px] tracking-[1.2em] text-black/40 font-black uppercase">思想进阶书单推荐 / READINGS</span></div>
-                                   <div className="space-y-6">
+                                   <div className="space-y-6 text-left">
                                      {persona.books.map((b, i) => (
                                        <div key={b} className="border border-black/[0.08] p-10 flex justify-between items-center group hover:bg-black/[0.01] transition-all cursor-pointer bg-white shadow-sm rounded-sm text-left">
                                           <div className="flex items-center gap-12 text-left">
                                             <div className="text-2xl font-serif text-black/20 italic font-black">0{i+1}</div>
-                                            <div><div className="text-2xl font-black mb-1 leading-none group-hover:underline decoration-1 underline-offset-8 text-left">《{b}》</div><p className="text-[10px] text-black/40 uppercase font-bold tracking-widest">Selected Anthropological Archive</p></div>
+                                            <div className="text-left"><div className="text-2xl font-black mb-1 leading-none group-hover:underline decoration-1 underline-offset-8 text-left">《{b}》</div><p className="text-[10px] text-black/40 uppercase font-bold tracking-widest">Selected Anthropological Archive</p></div>
                                           </div>
                                           <div className="px-6 py-2 bg-black text-[#fdfcf9] text-[9px] font-black uppercase tracking-widest">Recommend</div>
                                        </div>
@@ -646,7 +668,7 @@
                                         <thead><tr className="border-b-2 border-black"><th className="py-8 font-black uppercase tracking-[0.2em]">学派</th><th className="py-8 font-black uppercase tracking-[0.2em]">主张</th><th className="py-8 font-black uppercase tracking-[0.2em]">代表</th><th className="py-8 font-black uppercase tracking-[0.2em]">批评</th></tr></thead>
                                         <tbody className="divide-y divide-black/[0.1]">
                                           {SCHOOLS.map((s, i) => (
-                                            <tr key={i} className="group hover:bg-black/[0.01]"><td className="py-10 pr-6 font-black text-xl">{s.name}</td><td className="py-10 pr-10 italic opacity-85 text-lg leading-relaxed text-left">“{s.claim}”</td><td className="py-10 pr-10 font-medium text-black/70">{s.people}</td><td className="py-10 text-black/60 font-sans"><div className="leading-relaxed mb-6">{s.critique}</div><div className="pt-4 border-t border-black/[0.06] text-[10px] font-black uppercase text-black/35 tracking-wider italic"><span className="text-black/50 mr-2">关联:</span> {s.relation}</div></td></tr>
+                                            <tr key={`school-${i}`} className="group hover:bg-black/[0.01]"><td className="py-10 pr-6 font-black text-xl">{s.name}</td><td className="py-10 pr-10 italic opacity-85 text-lg leading-relaxed text-left">“{s.claim}”</td><td className="py-10 pr-10 font-medium text-black/70">{s.people}</td><td className="py-10 text-black/60 font-sans"><div className="leading-relaxed mb-6">{s.critique}</div><div className="pt-4 border-t border-black/[0.06] text-[10px] font-black uppercase text-black/35 tracking-wider italic"><span className="text-black/50 mr-2">关联:</span> {s.relation}</div></td></tr>
                                           ))}
                                         </tbody>
                                       </table>
